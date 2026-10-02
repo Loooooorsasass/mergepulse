@@ -154,6 +154,9 @@ class MainActivity : ComponentActivity() {
                                 onReturnHome = {
                                     currentScreen = Screen.HOME
                                 },
+                                onOpenCorepedia = { currentScreen = Screen.COLLECTION },
+                                onOpenMissions = { currentScreen = Screen.MISSIONS },
+                                onOpenSettings = { currentScreen = Screen.SETTINGS },
                                 initialMode = currentGameMode,
                                 initialMission = selectedMission
                             )
