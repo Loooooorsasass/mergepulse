@@ -42,12 +42,20 @@ class ChargeGenerator {
 
 class SpawnSystem {
 
-    private val baseWeights = mapOf(
-        1 to 35,
-        2 to 30,
-        3 to 20,
-        4 to 10,
-        5 to 5
+    // Early game must stay merge-readable: most drops are low tiers.
+    // Once the player has established the core loop, tiers 4-5 enter slowly.
+    private val earlyWeights = mapOf(
+        1 to 65,
+        2 to 25,
+        3 to 10
+    )
+
+    private val lateWeights = mapOf(
+        1 to 55,
+        2 to 25,
+        3 to 12,
+        4 to 6,
+        5 to 2
     )
 
     private val chargeGenerator = ChargeGenerator()
@@ -74,7 +82,8 @@ class SpawnSystem {
 
     fun pickSpawnLevel(elapsedSeconds: Float): Int {
         val unlocked = getUnlockedLevels(elapsedSeconds)
-        val weights = unlocked.map { baseWeights[it] ?: 5 }
+        val weightsMap = if (elapsedSeconds < 60f) earlyWeights else lateWeights
+        val weights = unlocked.map { weightsMap[it] ?: 1 }
         val totalWeight = weights.sum()
 
         var roll = Random.nextFloat() * totalWeight
