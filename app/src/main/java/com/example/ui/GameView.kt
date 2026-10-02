@@ -58,6 +58,7 @@ import com.example.audio.SoundManager
 import com.example.game.engine.GameMode
 import com.example.game.engine.GameOverPhase
 import com.example.game.engine.GameState
+import com.example.game.engine.GameTextProvider
 import com.example.game.engine.GameWorld
 import com.example.game.engine.TutorialState
 import com.example.game.model.MissionDefinition
@@ -88,9 +89,65 @@ fun GameScreen(
 
     // Frame Invalidation Bridge: triggers Compose recomposition every frame without mutating engine
     var uiTick by remember { mutableLongStateOf(0L) }
+    var lastPersistedSessionId by remember { mutableLongStateOf(-1L) }
 
     gameWorld.currentThemeId = selectedThemeId
     gameWorld.gameOverFsm.hasPromptedNotificationEver = hasPromptedNotification
+
+    gameWorld.textProvider = remember(context) {
+        object : GameTextProvider {
+            override fun overchargeShockwave(): String =
+                context.getString(R.string.overcharge_shockwave)
+
+            override fun scoreOverdrive(durationSeconds: Int): String =
+                context.getString(
+                    R.string.score_overdrive,
+                    durationSeconds
+                )
+
+            override fun graceRescue(points: Int): String =
+                context.getString(
+                    R.string.grace_rescue,
+                    points
+                )
+
+            override fun comboSuffix(combo: Int): String =
+                context.getString(
+                    R.string.combo_suffix,
+                    combo
+                )
+
+            override fun overdriveTag(): String =
+                context.getString(R.string.overdrive_tag)
+
+            override fun floatingScore(
+                points: Int,
+                combo: Int,
+                overdrive: Boolean
+            ): String {
+                val comboText =
+                    if (combo > 1) {
+                        context.getString(R.string.combo_suffix, combo)
+                    } else {
+                        ""
+                    }
+
+                val overdriveText =
+                    if (overdrive) {
+                        context.getString(R.string.overdrive_tag)
+                    } else {
+                        ""
+                    }
+
+                return context.getString(
+                    R.string.floating_score,
+                    points,
+                    comboText,
+                    overdriveText
+                )
+            }
+        }
+    }
 
     gameWorld.onPlaySfx = { sfxType, pitch, comboStep ->
         soundManager.playSfx(sfxType, pitch, comboStep)
@@ -133,14 +190,24 @@ fun GameScreen(
                     onMarkFtueCompleted()
                 }
 
-                if (gameWorld.state == GameState.GAME_OVER || gameWorld.state == GameState.MISSION_COMPLETE) {
+                if (
+                    (gameWorld.state == GameState.GAME_OVER ||
+                     gameWorld.state == GameState.MISSION_COMPLETE) &&
+                    lastPersistedSessionId != gameWorld.gameSessionId
+                ) {
+                    lastPersistedSessionId = gameWorld.gameSessionId
+
                     onSaveResult(
                         gameWorld.score,
                         gameWorld.bestCombo,
                         gameWorld.totalMergesInGame,
                         gameWorld.highestLevelReached
                     )
-                    if (gameWorld.state == GameState.MISSION_COMPLETE && gameWorld.activeMission != null) {
+
+                    if (
+                        gameWorld.state == GameState.MISSION_COMPLETE &&
+                        gameWorld.activeMission != null
+                    ) {
                         onMissionCompleted(gameWorld.activeMission!!.id)
                     }
                 }

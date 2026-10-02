@@ -1,10 +1,11 @@
 package com.example.game.model
 
 import androidx.compose.ui.graphics.Color
+import com.mergepulse.R
 
 data class CoreLevelData(
     val level: Int,
-    val name: String,
+    val nameResId: Int,
     val baseScore: Int,
     val radiusDp: Float,
     val mass: Float,
@@ -12,7 +13,7 @@ data class CoreLevelData(
     val positiveColor: Color,
     val negativeColor: Color,
     val glowColor: Color,
-    val description: String
+    val descriptionResId: Int
 )
 
 object CoreLevelRegistry {
@@ -30,7 +31,7 @@ object CoreLevelRegistry {
     val LEVELS = listOf(
         CoreLevelData(
             level = 1,
-            name = "Spark",
+            nameResId = R.string.core_spark,
             baseScore = 1,
             radiusDp = 28f,
             mass = 1.0f,
@@ -38,11 +39,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFA5D6A7), // Soft Sage Green
             negativeColor = Color(0xFF90CAF9), // Soft Sky Blue
             glowColor = Color(0xFF90CAF9),
-            description = "Micro-charge energy spark."
+            descriptionResId = R.string.core_spark_description
         ),
         CoreLevelData(
             level = 2,
-            name = "Cell",
+            nameResId = R.string.core_cell,
             baseScore = 3,
             radiusDp = 38f,
             mass = 2.0f,
@@ -50,11 +51,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFFFCC80), // Soft Apricot
             negativeColor = Color(0xFFFFAB91), // Soft Peach/Salmon
             glowColor = Color(0xFFFFAB91),
-            description = "Stabilized elemental core cell."
+            descriptionResId = R.string.core_cell_description
         ),
         CoreLevelData(
             level = 3,
-            name = "Node",
+            nameResId = R.string.core_node,
             baseScore = 6,
             radiusDp = 51f,
             mass = 3.8f,
@@ -62,11 +63,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFF80CBC4), // Soft Mint
             negativeColor = Color(0xFF81D4FA), // Soft Cyan
             glowColor = Color(0xFF80CBC4),
-            description = "Network node core."
+            descriptionResId = R.string.core_node_description
         ),
         CoreLevelData(
             level = 4,
-            name = "Core",
+            nameResId = R.string.core_core,
             baseScore = 12,
             radiusDp = 68f,
             mass = 6.8f,
@@ -74,11 +75,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFCE93D8), // Soft Orchid
             negativeColor = Color(0xFFC5CAE9), // Soft Lavender
             glowColor = Color(0xFFC5CAE9),
-            description = "Dense energy core matrix."
+            descriptionResId = R.string.core_core_description
         ),
         CoreLevelData(
             level = 5,
-            name = "Reactor",
+            nameResId = R.string.core_reactor,
             baseScore = 24,
             radiusDp = 90f,
             mass = 11.5f,
@@ -86,11 +87,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFFFF59D), // Butter Yellow
             negativeColor = Color(0xFFFFE082), // Soft Amber
             glowColor = Color(0xFFFFE082),
-            description = "High-output reactor core."
+            descriptionResId = R.string.core_reactor_description
         ),
         CoreLevelData(
             level = 6,
-            name = "Pulse",
+            nameResId = R.string.core_pulse,
             baseScore = 48,
             radiusDp = 117f,
             mass = 18.0f,
@@ -98,11 +99,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFF48FB1), // Soft Rose
             negativeColor = Color(0xFFB39DDB), // Soft Lilac
             glowColor = Color(0xFFB39DDB),
-            description = "Harmonic pulse sphere."
+            descriptionResId = R.string.core_pulse_description
         ),
         CoreLevelData(
             level = 7,
-            name = "Plasma",
+            nameResId = R.string.core_plasma,
             baseScore = 96,
             radiusDp = 144f,
             mass = 27.5f,
@@ -110,11 +111,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFF80DEEA), // Soft Aqua
             negativeColor = Color(0xFF4DD0E1), // Cyan Tint
             glowColor = Color(0xFF80DEEA),
-            description = "Superheated plasma cluster."
+            descriptionResId = R.string.core_plasma_description
         ),
         CoreLevelData(
             level = 8,
-            name = "Nova",
+            nameResId = R.string.core_nova,
             baseScore = 192,
             radiusDp = 170f,
             mass = 39.0f,
@@ -122,11 +123,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFFF8A65), // Soft Tangerine
             negativeColor = Color(0xFFFF7043), // Coral
             glowColor = Color(0xFFFF8A65),
-            description = "Stellar nova fragment."
+            descriptionResId = R.string.core_nova_description
         ),
         CoreLevelData(
             level = 9,
-            name = "Star",
+            nameResId = R.string.core_star,
             baseScore = 384,
             radiusDp = 194f,
             mass = 54.0f,
@@ -134,11 +135,11 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFFFF176), // Soft Sunshine
             negativeColor = Color(0xFFFFEE58), // Radiant Gold
             glowColor = Color(0xFFFFF176),
-            description = "Radiant star core."
+            descriptionResId = R.string.core_star_description
         ),
         CoreLevelData(
             level = 10,
-            name = "Singularity",
+            nameResId = R.string.core_singularity,
             baseScore = 768,
             radiusDp = 216f,
             mass = 75.0f,
@@ -146,7 +147,7 @@ object CoreLevelRegistry {
             positiveColor = Color(0xFFD1C4E9), // Cosmic Mist
             negativeColor = Color(0xFFB388FF), // Deep Violet
             glowColor = Color(0xFFB388FF),
-            description = "Cosmic singularity."
+            descriptionResId = R.string.core_singularity_description
         )
     )
 

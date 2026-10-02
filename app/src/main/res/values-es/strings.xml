@@ -52,6 +52,7 @@
     <string name="reset">RESTABLECER</string>
     <string name="language">IDIOMA</string>
     <string name="select_language">Seleccionar Idioma</string>
+    <string name="change">CAMBIAR</string>
     <string name="unlocked_cores">Desbloqueados: %1$d / 10 Núcleos</string>
     <string name="daily_missions_subtitle">Se renueva cada 24h • Idéntico para todos</string>
     <string name="replay">REPETIR</string>
@@ -76,7 +77,36 @@
     <string name="level_prefix">NIVEL %1$d</string>
     <string name="goal_prefix">OBJETIVO: %1$s</string>
     <string name="overcharge_shockwave">¡ONDA DE SOBRECARGA!</string>
-    <string name="score_overdrive">¡PUNTUACIÓN X2 (10s)!</string>
-    <string name="grace_rescue">¡RESCATE DE EMERGENCIA! +200</string>
+    <string name="score_overdrive">¡PUNTUACIÓN X2 (%1$d s)!</string>
+    <string name="grace_rescue">¡RESCATE DE EMERGENCIA! +%1$d</string>
     <string name="combo_suffix">(¡x%1$d COMBO!)</string>
+    <string name="overdrive_tag"> [2X]</string>
+    <string name="floating_score">+%1$d%2$s%3$s</string>
+
+    <string name="locked_core_name">\?\?\?</string>
+    <string name="locked_core_description">...</string>
+    <string name="points_suffix">+%1$d Pts</string>
+    <string name="level_short">N%1$d</string>
+
+    <string name="core_spark">Chispa</string>
+    <string name="core_cell">Célula</string>
+    <string name="core_node">Nodo</string>
+    <string name="core_core">Núcleo</string>
+    <string name="core_reactor">Reactor</string>
+    <string name="core_pulse">Pulso</string>
+    <string name="core_plasma">Plasma</string>
+    <string name="core_nova">Nova</string>
+    <string name="core_star">Estrella</string>
+    <string name="core_singularity">Singularidad</string>
+
+    <string name="core_spark_description">Chispa de energía de microcarga.</string>
+    <string name="core_cell_description">Célula elemental de núcleo estabilizado.</string>
+    <string name="core_node_description">Núcleo de nodo de red.</string>
+    <string name="core_core_description">Matriz densa de núcleo de energía.</string>
+    <string name="core_reactor_description">Núcleo reactor de alto rendimiento.</string>
+    <string name="core_pulse_description">Esfera de pulso armónico.</string>
+    <string name="core_plasma_description">Cúmulo de plasma supercalentado.</string>
+    <string name="core_nova_description">Fragmento de nova estelar.</string>
+    <string name="core_star_description">Núcleo estelar radiante.</string>
+    <string name="core_singularity_description">Singularidad cósmica.</string>
 </resources>

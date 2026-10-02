@@ -88,7 +88,7 @@ class GameRenderer {
         world: GameWorld,
         screenWidth: Float,
         screenHeight: Float,
-        dangerLabel: String = "DANGER"
+        dangerLabel: String
     ) {
         val now = System.currentTimeMillis() / 1000f
 

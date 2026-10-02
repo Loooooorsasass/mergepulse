@@ -101,7 +101,10 @@ fun ControlPanel(
                         .padding(horizontal = 5.dp, vertical = 1.dp)
                 ) {
                     Text(
-                        text = "L${core.level}",
+                        text = stringResource(
+                            R.string.level_short,
+                            core.level
+                        ),
                         color = Color.White,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Black

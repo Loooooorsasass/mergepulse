@@ -171,7 +171,7 @@ fun SettingsScreen(
                         }
 
                         Text(
-                            text = "CHANGE",
+                            text = stringResource(R.string.change),
                             color = Color(0xFF2563EB),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Black

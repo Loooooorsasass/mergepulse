@@ -52,6 +52,7 @@
     <string name="reset">RESET</string>
     <string name="language">LANGUAGE</string>
     <string name="select_language">Select Language</string>
+    <string name="change">CHANGE</string>
     <string name="unlocked_cores">Unlocked: %1$d / 10 Cores</string>
     <string name="daily_missions_subtitle">Refreshes every 24h • Deterministic for all players</string>
     <string name="replay">REPLAY</string>
@@ -76,7 +77,36 @@
     <string name="level_prefix">LEVEL %1$d</string>
     <string name="goal_prefix">GOAL: %1$s</string>
     <string name="overcharge_shockwave">OVERCHARGE SHOCKWAVE!</string>
-    <string name="score_overdrive">2X SCORE OVERDRIVE (10s)!</string>
-    <string name="grace_rescue">GRACE RESCUE! +200</string>
+    <string name="score_overdrive">2X SCORE OVERDRIVE (%1$d s)!</string>
+    <string name="grace_rescue">GRACE RESCUE! +%1$d</string>
     <string name="combo_suffix">(x%1$d COMBO!)</string>
+    <string name="overdrive_tag"> [2X]</string>
+    <string name="floating_score">+%1$d%2$s%3$s</string>
+
+    <string name="locked_core_name">\?\?\?</string>
+    <string name="locked_core_description">...</string>
+    <string name="points_suffix">+%1$d Pts</string>
+    <string name="level_short">L%1$d</string>
+
+    <string name="core_spark">Spark</string>
+    <string name="core_cell">Cell</string>
+    <string name="core_node">Node</string>
+    <string name="core_core">Core</string>
+    <string name="core_reactor">Reactor</string>
+    <string name="core_pulse">Pulse</string>
+    <string name="core_plasma">Plasma</string>
+    <string name="core_nova">Nova</string>
+    <string name="core_star">Star</string>
+    <string name="core_singularity">Singularity</string>
+
+    <string name="core_spark_description">Micro-charge energy spark.</string>
+    <string name="core_cell_description">Stabilized elemental core cell.</string>
+    <string name="core_node_description">Network node core.</string>
+    <string name="core_core_description">Dense energy core matrix.</string>
+    <string name="core_reactor_description">High-output reactor core.</string>
+    <string name="core_pulse_description">Harmonic pulse sphere.</string>
+    <string name="core_plasma_description">Superheated plasma cluster.</string>
+    <string name="core_nova_description">Stellar nova fragment.</string>
+    <string name="core_star_description">Radiant star core.</string>
+    <string name="core_singularity_description">Cosmic singularity.</string>
 </resources>

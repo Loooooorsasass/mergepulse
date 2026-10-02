@@ -52,6 +52,7 @@
     <string name="reset">XÓA</string>
     <string name="language">NGÔN NGỮ</string>
     <string name="select_language">Chọn Ngôn Ngữ</string>
+    <string name="change">ĐỔI</string>
     <string name="unlocked_cores">Đã Mở: %1$d / 10 Lõi</string>
     <string name="daily_missions_subtitle">Làm mới sau 24h • Đồng bộ cho mọi người chơi</string>
     <string name="replay">CHƠI LẠI</string>
@@ -76,7 +77,36 @@
     <string name="level_prefix">CẤP %1$d</string>
     <string name="goal_prefix">MỤC TIÊU: %1$s</string>
     <string name="overcharge_shockwave">XUNG KÍCH QUÁ TẢI!</string>
-    <string name="score_overdrive">X2 ĐIỂM SỐ (10 GIÂY)!</string>
-    <string name="grace_rescue">CỨU NGUY TỨC THỜI! +200</string>
+    <string name="score_overdrive">X2 ĐIỂM SỐ (%1$d s)!</string>
+    <string name="grace_rescue">CỨU NGUY TỨC THỜI! +%1$d</string>
     <string name="combo_suffix">(x%1$d COMBO!)</string>
+    <string name="overdrive_tag"> [X2]</string>
+    <string name="floating_score">+%1$d%2$s%3$s</string>
+
+    <string name="locked_core_name">\?\?\?</string>
+    <string name="locked_core_description">...</string>
+    <string name="points_suffix">+%1$d Điểm</string>
+    <string name="level_short">C%1$d</string>
+
+    <string name="core_spark">Tia Lửa</string>
+    <string name="core_cell">Tế Bào</string>
+    <string name="core_node">Nút Mạng</string>
+    <string name="core_core">Lõi Năng Lượng</string>
+    <string name="core_reactor">Lò Phản Ứng</string>
+    <string name="core_pulse">Xung Động</string>
+    <string name="core_plasma">Huyết Tương Plasma</string>
+    <string name="core_nova">Tân Tinh</string>
+    <string name="core_star">Tinh Tú</string>
+    <string name="core_singularity">Điểm Kỳ Dị</string>
+
+    <string name="core_spark_description">Tia sáng mang vi điện tích.</string>
+    <string name="core_cell_description">Lõi tế bào nguyên tố ổn định.</string>
+    <string name="core_node_description">Nút mạng liên kết phân tử.</string>
+    <string name="core_core_description">Ma trận lõi năng lượng đậm đặc.</string>
+    <string name="core_reactor_description">Lõi lò phản ứng công suất cao.</string>
+    <string name="core_pulse_description">Khối cầu xung động điều hòa.</string>
+    <string name="core_plasma_description">Cụm hạt plasma siêu nhiệt.</string>
+    <string name="core_nova_description">Mảnh vỡ tinh vân bùng nổ.</string>
+    <string name="core_star_description">Lõi ngôi sao tỏa sáng rực rỡ.</string>
+    <string name="core_singularity_description">Điểm kỳ dị không thời gian vũ trụ.</string>
 </resources>

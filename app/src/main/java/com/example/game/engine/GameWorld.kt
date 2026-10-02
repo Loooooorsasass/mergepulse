@@ -108,6 +108,11 @@ class GameWorld {
     // Audio SFX callbacks
     var onPlaySfx: ((SfxType, Float, Int) -> Unit)? = null
 
+    var gameSessionId: Long = 0L
+        private set
+
+    var textProvider: GameTextProvider? = null
+
     enum class SfxType {
         DROP,
         BOUNCE,
@@ -135,6 +140,7 @@ class GameWorld {
     }
 
     fun startNewGame(gameMode: GameMode = GameMode.ENDLESS, mission: MissionDefinition? = null) {
+        gameSessionId++
         mode = gameMode
         activeMission = mission
         state = GameState.PLAYING
@@ -175,6 +181,7 @@ class GameWorld {
     }
 
     fun resetForRetry() {
+        gameSessionId++
         state = GameState.PLAYING
         elapsedTime = 0f
         secondTickAccumulator = 0f
@@ -340,7 +347,7 @@ class GameWorld {
                 id = System.nanoTime(),
                 x = centerX,
                 y = centerY - 100f,
-                text = "OVERCHARGE SHOCKWAVE!",
+                text = requireNotNull(textProvider).overchargeShockwave(),
                 color = Color(0xFF00E5FF),
                 duration = 1.5f,
                 isCombo = true
@@ -364,7 +371,7 @@ class GameWorld {
                 id = System.nanoTime(),
                 x = (chamberLeft + chamberRight) / 2f,
                 y = dangerLineY + 100f,
-                text = "2X SCORE OVERDRIVE (10s)!",
+                text = requireNotNull(textProvider).scoreOverdrive(10),
                 color = Color(0xFFFFD600),
                 duration = 1.8f,
                 isCombo = true
@@ -469,7 +476,7 @@ class GameWorld {
                                     id = System.nanoTime(),
                                     x = merged.position.x,
                                     y = merged.position.y - 40f,
-                                    text = "GRACE RESCUE! +200",
+                                    text = requireNotNull(textProvider).graceRescue(200),
                                     color = Color(0xFF00E5FF),
                                     duration = 1.5f,
                                     isCombo = true
@@ -514,14 +521,18 @@ class GameWorld {
 
                         spawnMergeParticles(merged)
 
-                        val overdriveStr = if (scoreOverdriveTimer > 0f) " [2X]" else ""
-                        val comboStr = if (comboCount > 1) " (x$comboCount COMBO!)$overdriveStr" else overdriveStr
+                        val floatingScoreText =
+                            requireNotNull(textProvider).floatingScore(
+                                points = pointsEarned,
+                                combo = comboCount,
+                                overdrive = scoreOverdriveTimer > 0f
+                            )
                         floatingTexts.add(
                             FloatingText(
                                 id = System.nanoTime(),
                                 x = merged.position.x,
                                 y = merged.position.y - merged.radius - 20f,
-                                text = "+$pointsEarned$comboStr",
+                                text = floatingScoreText,
                                 color = CoreLevelRegistry.getInfo(merged.level).glowColor,
                                 duration = 1.2f,
                                 isCombo = comboCount > 1
@@ -550,8 +561,13 @@ class GameWorld {
                         break
                     } else {
                         val collided = physicsEngine.resolveCoreCollision(a, b)
-                        if (collided && (a.triggerCollisionSound() || b.triggerCollisionSound())) {
-                            onPlaySfx?.invoke(SfxType.BOUNCE, 1.0f, 1)
+                        if (collided) {
+                            val aCanTriggerSound = a.triggerCollisionSound()
+                            val bCanTriggerSound = b.triggerCollisionSound()
+
+                            if (aCanTriggerSound || bCanTriggerSound) {
+                                onPlaySfx?.invoke(SfxType.BOUNCE, 1.0f, 1)
+                            }
                         }
                     }
                 }

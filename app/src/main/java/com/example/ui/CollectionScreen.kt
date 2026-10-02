@@ -161,7 +161,10 @@ fun CoreCollectionCard(
             )
 
             Text(
-                text = if (isUnlocked) levelData.name else "???",
+                text = stringResource(
+                    if (isUnlocked) levelData.nameResId
+                    else R.string.locked_core_name
+                ),
                 color = Color(0xFF111827),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -170,7 +173,10 @@ fun CoreCollectionCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "+${levelData.baseScore} Pts",
+                text = stringResource(
+                    R.string.points_suffix,
+                    levelData.baseScore
+                ),
                 color = Color(0xFFD97706),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Black
@@ -179,7 +185,10 @@ fun CoreCollectionCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = if (isUnlocked) levelData.description else "...",
+                text = stringResource(
+                    if (isUnlocked) levelData.descriptionResId
+                    else R.string.locked_core_description
+                ),
                 color = Color(0xFF6B7280),
                 fontSize = 13.sp,
                 lineHeight = 17.sp,

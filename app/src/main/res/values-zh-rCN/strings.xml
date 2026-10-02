@@ -52,6 +52,7 @@
     <string name="reset">重置</string>
     <string name="language">语言设置</string>
     <string name="select_language">选择语言</string>
+    <string name="change">更改</string>
     <string name="unlocked_cores">已解锁: %1$d / 10 核心</string>
     <string name="daily_missions_subtitle">每24小时刷新 • 全球玩家一致任务</string>
     <string name="replay">重新挑战</string>
@@ -76,7 +77,36 @@
     <string name="level_prefix">等级 %1$d</string>
     <string name="goal_prefix">目标: %1$s</string>
     <string name="overcharge_shockwave">过载冲击波！</string>
-    <string name="score_overdrive">双倍得分狂暴 (10秒)！</string>
-    <string name="grace_rescue">极限救援！+200</string>
+    <string name="score_overdrive">双倍得分狂暴 (%1$d 秒)！</string>
+    <string name="grace_rescue">极限救援！+%1$d</string>
     <string name="combo_suffix">(x%1$d 连击！)</string>
+    <string name="overdrive_tag"> [双倍]</string>
+    <string name="floating_score">+%1$d%2$s%3$s</string>
+
+    <string name="locked_core_name">\?\?\?</string>
+    <string name="locked_core_description">...</string>
+    <string name="points_suffix">+%1$d 分</string>
+    <string name="level_short">%1$d级</string>
+
+    <string name="core_spark">火花</string>
+    <string name="core_cell">微胞</string>
+    <string name="core_node">节点</string>
+    <string name="core_core">核心</string>
+    <string name="core_reactor">反应堆</string>
+    <string name="core_pulse">脉冲</string>
+    <string name="core_plasma">等离子</string>
+    <string name="core_nova">超新星</string>
+    <string name="core_star">恒星</string>
+    <string name="core_singularity">奇点</string>
+
+    <string name="core_spark_description">微电荷能量火花。</string>
+    <string name="core_cell_description">稳定的元素核心微胞。</string>
+    <string name="core_node_description">网络节点核心。</string>
+    <string name="core_core_description">高密度能量核心矩阵。</string>
+    <string name="core_reactor_description">高输出反应堆核心。</string>
+    <string name="core_pulse_description">谐波脉冲球体。</string>
+    <string name="core_plasma_description">超高温等离子体聚合团。</string>
+    <string name="core_nova_description">恒星新星碎片。</string>
+    <string name="core_star_description">璀璨辐射恒星核心。</string>
+    <string name="core_singularity_description">宇宙引力奇点。</string>
 </resources>

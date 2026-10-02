@@ -19,8 +19,27 @@ class SoundManager {
     private val audioScope = CoroutineScope(Dispatchers.Default)
 
     // Audio Throttling & Priority System (Sections 8 & 9)
+    private fun priority(type: SfxType): Int {
+        return when (type) {
+            SfxType.MERGE,
+            SfxType.COMBO,
+            SfxType.GAME_OVER,
+            SfxType.MISSION_WIN -> 5
+
+            SfxType.OVERCHARGE -> 4
+
+            SfxType.DANGER -> 3
+
+            SfxType.DROP -> 2
+
+            SfxType.BOUNCE -> 1
+        }
+    }
+
+    private var lastPlayedPriority: Int = 0
+    private var lastPriorityTimestamp: Long = 0L
+    private val HIGH_PRIORITY_WINDOW_MS = 180L
     private var lastCollisionSoundTimestamp: Long = 0L
-    private var lastHighPrioritySoundTimestamp: Long = 0L
     private val MIN_COLLISION_SOUND_INTERVAL_MS = 140L
 
     // Pentatonic scale for chain combos
@@ -39,25 +58,26 @@ class SoundManager {
         if (!isSoundEnabled) return
 
         val now = System.currentTimeMillis()
+        val currentPriority = priority(type)
 
-        // 9. Audio Priority System: MERGE > OVERCHARGE > DANGER > DROP > COLLISION
-        if (type == SfxType.MERGE || type == SfxType.COMBO || type == SfxType.OVERCHARGE || 
-            type == SfxType.DANGER || type == SfxType.GAME_OVER || type == SfxType.MISSION_WIN) {
-            lastHighPrioritySoundTimestamp = now
+        if (
+            currentPriority < lastPlayedPriority &&
+            now - lastPriorityTimestamp < HIGH_PRIORITY_WINDOW_MS
+        ) {
+            return
         }
 
         // 8. Strict throttling on collision sounds
         if (type == SfxType.BOUNCE) {
-            // Priority check: discard collision if high-priority event just occurred
-            if (now - lastHighPrioritySoundTimestamp < 180L) {
-                return // Suppress collision sound in favor of merge/overcharge/danger
-            }
             // Global cooldown check: discard if within 140ms cooldown window
             if (now - lastCollisionSoundTimestamp < MIN_COLLISION_SOUND_INTERVAL_MS) {
                 return // Discard audio spam
             }
             lastCollisionSoundTimestamp = now
         }
+
+        lastPlayedPriority = currentPriority
+        lastPriorityTimestamp = now
 
         audioScope.launch {
             try {

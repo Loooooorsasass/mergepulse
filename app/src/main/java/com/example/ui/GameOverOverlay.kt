@@ -216,7 +216,7 @@ fun GameOverDialog(
                 StatBox(label = stringResource(R.string.max_combo), value = "x${world.bestCombo}")
                 StatBox(label = stringResource(R.string.total_merges), value = "${world.totalMergesInGame}")
                 val highestCoreInfo = CoreLevelRegistry.getInfo(world.highestLevelReached)
-                StatBox(label = stringResource(R.string.best_core), value = highestCoreInfo.name)
+                StatBox(label = stringResource(R.string.best_core), value = stringResource(highestCoreInfo.nameResId))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
