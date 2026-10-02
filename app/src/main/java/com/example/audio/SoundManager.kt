@@ -18,9 +18,14 @@ class SoundManager {
     private val sampleRate = 22050
     private val audioScope = CoroutineScope(Dispatchers.Default)
 
-    // Musical Pentatonic Scale for Combo Chains (C4, D4, E4, G4, A4, C5, D5, E5)
+    // Audio Throttling & Priority System (Sections 8 & 9)
+    private var lastCollisionSoundTimestamp: Long = 0L
+    private var lastHighPrioritySoundTimestamp: Long = 0L
+    private val MIN_COLLISION_SOUND_INTERVAL_MS = 140L
+
+    // Pentatonic scale for chain combos
     private val comboScaleRatios = floatArrayOf(
-        1.0f,     // C4 (1.0x)
+        1.0f,     // C4
         1.122f,   // D4
         1.260f,   // E4
         1.498f,   // G4
@@ -33,25 +38,46 @@ class SoundManager {
     fun playSfx(type: SfxType, pitch: Float = 1.0f, comboStep: Int = 1) {
         if (!isSoundEnabled) return
 
+        val now = System.currentTimeMillis()
+
+        // 9. Audio Priority System: MERGE > OVERCHARGE > DANGER > DROP > COLLISION
+        if (type == SfxType.MERGE || type == SfxType.COMBO || type == SfxType.OVERCHARGE || 
+            type == SfxType.DANGER || type == SfxType.GAME_OVER || type == SfxType.MISSION_WIN) {
+            lastHighPrioritySoundTimestamp = now
+        }
+
+        // 8. Strict throttling on collision sounds
+        if (type == SfxType.BOUNCE) {
+            // Priority check: discard collision if high-priority event just occurred
+            if (now - lastHighPrioritySoundTimestamp < 180L) {
+                return // Suppress collision sound in favor of merge/overcharge/danger
+            }
+            // Global cooldown check: discard if within 140ms cooldown window
+            if (now - lastCollisionSoundTimestamp < MIN_COLLISION_SOUND_INTERVAL_MS) {
+                return // Discard audio spam
+            }
+            lastCollisionSoundTimestamp = now
+        }
+
         audioScope.launch {
             try {
                 when (type) {
-                    SfxType.DROP -> playTone(startFreq = 340f, endFreq = 140f, durationMs = 110, volume = 0.4f)
-                    SfxType.BOUNCE -> playTone(startFreq = 180f, endFreq = 220f, durationMs = 50, volume = 0.25f)
+                    SfxType.DROP -> playTone(startFreq = 320f, endFreq = 160f, durationMs = 80, volume = 0.35f)
+                    SfxType.BOUNCE -> playTone(startFreq = 160f, endFreq = 200f, durationMs = 45, volume = 0.20f)
                     SfxType.MERGE -> {
                         val baseFreq = 380f * pitch
-                        playTone(startFreq = baseFreq, endFreq = baseFreq * 1.4f, durationMs = 160, volume = 0.55f)
+                        playTone(startFreq = baseFreq, endFreq = baseFreq * 1.35f, durationMs = 150, volume = 0.60f)
                     }
                     SfxType.COMBO -> {
                         val scaleIdx = (comboStep - 1).coerceIn(0, comboScaleRatios.size - 1)
                         val ratio = comboScaleRatios[scaleIdx]
                         val baseFreq = 440f * ratio
-                        playTone(startFreq = baseFreq, endFreq = baseFreq * 1.25f, durationMs = 220, volume = 0.75f)
+                        playTone(startFreq = baseFreq, endFreq = baseFreq * 1.25f, durationMs = 200, volume = 0.70f)
                     }
-                    SfxType.DANGER -> playTone(startFreq = 880f, endFreq = 660f, durationMs = 140, volume = 0.5f)
-                    SfxType.OVERCHARGE -> playTone(startFreq = 150f, endFreq = 950f, durationMs = 380, volume = 0.85f)
-                    SfxType.GAME_OVER -> playTone(startFreq = 420f, endFreq = 100f, durationMs = 550, volume = 0.7f)
-                    SfxType.MISSION_WIN -> playTone(startFreq = 523.25f, endFreq = 1046.50f, durationMs = 450, volume = 0.8f)
+                    SfxType.DANGER -> playTone(startFreq = 800f, endFreq = 620f, durationMs = 120, volume = 0.45f)
+                    SfxType.OVERCHARGE -> playTone(startFreq = 180f, endFreq = 980f, durationMs = 320, volume = 0.85f)
+                    SfxType.GAME_OVER -> playTone(startFreq = 400f, endFreq = 120f, durationMs = 450, volume = 0.65f)
+                    SfxType.MISSION_WIN -> playTone(startFreq = 523.25f, endFreq = 1046.50f, durationMs = 400, volume = 0.80f)
                 }
             } catch (e: Exception) {
                 // Ignore audio playback exceptions gracefully
@@ -93,7 +119,7 @@ class SoundManager {
         track.write(buffer, 0, buffer.size)
         track.play()
 
-        Thread.sleep(durationMs.toLong() + 40)
+        Thread.sleep(durationMs.toLong() + 30)
         track.release()
     }
 }

@@ -434,8 +434,10 @@ class GameWorld {
             if (core.active && core.isSpawned) {
                 physicsEngine.updateCore(core, dt)
                 val bounced = physicsEngine.resolveBoundaries(core, chamberLeft, chamberRight, chamberFloorY)
-                if (bounced && core.velocity.length() > 220f && gameOverFsm.timeScale > 0.5f) {
-                    onPlaySfx?.invoke(SfxType.BOUNCE, 0.8f, 1)
+                if (bounced && core.velocity.length() > 240f && gameOverFsm.timeScale > 0.5f) {
+                    if (core.triggerCollisionSound()) {
+                        onPlaySfx?.invoke(SfxType.BOUNCE, 0.8f, 1)
+                    }
                 }
 
                 if (core.mergeAnimTime > 0f) core.mergeAnimTime -= dt
@@ -547,7 +549,10 @@ class GameWorld {
 
                         break
                     } else {
-                        physicsEngine.resolveCoreCollision(a, b)
+                        val collided = physicsEngine.resolveCoreCollision(a, b)
+                        if (collided && (a.triggerCollisionSound() || b.triggerCollisionSound())) {
+                            onPlaySfx?.invoke(SfxType.BOUNCE, 1.0f, 1)
+                        }
                     }
                 }
             }

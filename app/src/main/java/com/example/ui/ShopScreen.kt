@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -35,14 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mergepulse.R
 import com.example.storage.UserGameStats
-import com.example.ui.theme.DarkBg
-import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.NeonCyan
-import com.example.ui.theme.NeonGold
 
 data class ThemeShopItem(
     val id: String,
@@ -54,10 +54,10 @@ data class ThemeShopItem(
 
 object ShopCatalog {
     val THEMES = listOf(
-        ThemeShopItem("default", "Dark Slate Deep Blue", "Classic deep space containment chamber with cyan energy borders.", 0, Color(0xFF00E5FF)),
-        ThemeShopItem("cyber_neon", "Cyberpunk Neon Chamber", "Futuristic neon pink and purple high-voltage grid aesthetic.", 300, Color(0xFFFF007F)),
-        ThemeShopItem("plasma_void", "Plasma Void Chamber", "Deep cosmic indigo void with electric purple particle containment.", 600, Color(0xFF7C4DFF)),
-        ThemeShopItem("golden_core", "Golden Reactor Chamber", "Luxurious golden energy matrix with radiant amber light fields.", 1000, Color(0xFFFFD600))
+        ThemeShopItem("default", "Minimal Pure White", "Clean, high-visibility lab chamber aesthetic.", 0, Color(0xFF1976D2)),
+        ThemeShopItem("cyber_neon", "Soft Pastel Sage", "Calm botanical soft mint and sage tones.", 300, Color(0xFF10B981)),
+        ThemeShopItem("plasma_void", "Nordic Frost Blue", "Crisp Nordic arctic ice and crystal borders.", 600, Color(0xFF2563EB)),
+        ThemeShopItem("golden_core", "Warm Amber Sunset", "Soft peach, warm honey and radiant amber.", 1000, Color(0xFFD97706))
     )
 }
 
@@ -70,76 +70,81 @@ fun ShopScreen(
 ) {
     Scaffold(
         topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(DarkSurface)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onBackClick, modifier = Modifier.testTag("shop_back_button")) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "CHAMBER SHOP",
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.sp
-                    )
-                }
-
-                // Credit Balance Badge
-                Box(
+            Column {
+                Row(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White.copy(alpha = 0.1f))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.MonetizationOn,
-                            contentDescription = "Credits",
-                            tint = NeonGold
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        IconButton(onClick = onBackClick, modifier = Modifier.testTag("shop_back_button")) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.cd_back),
+                                tint = Color(0xFF1F2937),
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "${stats.credits} CREDITS",
-                            color = NeonGold,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
+                            text = stringResource(R.string.chamber_shop),
+                            color = Color(0xFF111827),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp
                         )
                     }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFFEF3C7))
+                            .border(1.2.dp, Color(0xFFFDE68A), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 14.dp, vertical = 8.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.MonetizationOn,
+                                contentDescription = stringResource(R.string.cd_credits),
+                                tint = Color(0xFFD97706),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "${stats.credits}",
+                                color = Color(0xFF1F2937),
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
+                HorizontalDivider(thickness = 1.dp, color = Color(0xFFE5E7EB))
             }
         },
-        containerColor = DarkBg
+        containerColor = Color(0xFFF8F9FA)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            items(ShopCatalog.THEMES) { item ->
-                val isUnlocked = stats.unlockedThemes.contains(item.id)
-                val isSelected = stats.selectedTheme == item.id
+            items(ShopCatalog.THEMES) { themeItem ->
+                val isUnlocked = stats.unlockedThemes.contains(themeItem.id)
+                val isSelected = stats.selectedTheme == themeItem.id
 
-                ThemeCard(
-                    item = item,
+                ThemeItemCard(
+                    themeItem = themeItem,
                     isUnlocked = isUnlocked,
                     isSelected = isSelected,
-                    userCredits = stats.credits,
-                    onUnlock = { onUnlockTheme(item.id, item.cost) },
-                    onSelect = { onSelectTheme(item.id) }
+                    canAfford = stats.credits >= themeItem.cost,
+                    onUnlockClick = { onUnlockTheme(themeItem.id, themeItem.cost) },
+                    onSelectClick = { onSelectTheme(themeItem.id) }
                 )
             }
         }
@@ -147,95 +152,93 @@ fun ShopScreen(
 }
 
 @Composable
-private fun ThemeCard(
-    item: ThemeShopItem,
+private fun ThemeItemCard(
+    themeItem: ThemeShopItem,
     isUnlocked: Boolean,
     isSelected: Boolean,
-    userCredits: Int,
-    onUnlock: () -> Unit,
-    onSelect: () -> Unit
+    canAfford: Boolean,
+    onUnlockClick: () -> Unit,
+    onSelectClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
             .border(
-                2.dp,
-                if (isSelected) NeonCyan else item.accentColor.copy(alpha = 0.4f),
+                1.5.dp,
+                if (isSelected) Color(0xFF2563EB) else Color(0xFFE5E7EB),
                 RoundedCornerShape(16.dp)
             ),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(18.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(themeItem.accentColor.copy(alpha = 0.2f))
+                        .border(2.dp, themeItem.accentColor, RoundedCornerShape(12.dp))
+                )
+                Spacer(modifier = Modifier.width(14.dp))
+                Column {
                     Text(
-                        text = item.name,
-                        color = item.accentColor,
-                        fontSize = 16.sp,
+                        text = themeItem.name,
+                        color = Color(0xFF111827),
+                        fontSize = 17.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    if (isSelected) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "[ACTIVE]",
-                            color = NeonCyan,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Black
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(
+                        text = themeItem.description,
+                        color = Color(0xFF6B7280),
+                        fontSize = 13.sp,
+                        lineHeight = 17.sp
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = item.description,
-                    color = Color.LightGray,
-                    fontSize = 12.sp
-                )
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            if (isUnlocked) {
-                if (isSelected) {
+            if (isSelected) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Active Theme",
-                        tint = NeonCyan,
-                        modifier = Modifier.padding(8.dp)
+                        contentDescription = null,
+                        tint = Color(0xFF2563EB),
+                        modifier = Modifier.size(22.dp)
                     )
-                } else {
-                    OutlinedButton(
-                        onClick = onSelect,
-                        modifier = Modifier.testTag("select_theme_${item.id}"),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("EQUIP", color = Color.White)
-                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = stringResource(R.string.active), color = Color(0xFF2563EB), fontSize = 14.sp, fontWeight = FontWeight.Black)
+                }
+            } else if (isUnlocked) {
+                OutlinedButton(
+                    onClick = onSelectClick,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1F2937)),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, Color(0xFFE5E7EB))
+                ) {
+                    Text(stringResource(R.string.equip), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             } else {
                 Button(
-                    onClick = onUnlock,
-                    enabled = userCredits >= item.cost,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = NeonGold,
-                        contentColor = DarkBg,
-                        disabledContainerColor = Color.Gray.copy(alpha = 0.3f)
-                    ),
+                    onClick = onUnlockClick,
+                    enabled = canAfford,
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.testTag("unlock_theme_${item.id}")
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF121212),
+                        contentColor = Color.White
+                    )
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "Unlock Theme")
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = "${item.cost}", fontWeight = FontWeight.Bold)
-                    }
+                    Icon(imageVector = Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("${themeItem.cost}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             }
         }

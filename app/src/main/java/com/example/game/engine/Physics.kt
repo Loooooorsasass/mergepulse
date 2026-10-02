@@ -1,20 +1,24 @@
 package com.example.game.engine
 
 import com.example.game.model.Core
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 class PhysicsEngine(
-    var gravity: Float = 2000f,
-    var bounceRestitution: Float = 0.22f,
-    var friction: Float = 0.985f
+    var gravity: Float = 2200f,
+    var bounceRestitution: Float = 0.08f, // Calibrated within target 0.05–0.15 range
+    var friction: Float = 0.88f          // Higher friction: quickly settles without sliding
 ) {
-    val MAX_SPEED = 1200f
+    val MAX_SPEED = 900f
 
     fun updateCore(core: Core, dt: Float) {
         if (!core.active || !core.isSpawned) return
 
         // Apply gravity
         core.velocity.y += gravity * dt
+
+        // Horizontal velocity damping to prevent perpetual sliding
+        core.velocity.x *= (1f - 2.0f * dt).coerceIn(0.85f, 1f)
 
         // Speed Cap safety
         val currentSpeed = core.velocity.length()
@@ -28,7 +32,7 @@ class PhysicsEngine(
         core.position.x += core.velocity.x * dt
         core.position.y += core.velocity.y * dt
 
-        // Update rotation
+        // Rotation speed decays quickly when grounded
         core.rotationAngle += core.rotationSpeed * dt
     }
 
@@ -66,10 +70,19 @@ class PhysicsEngine(
         if (core.position.y >= maxY) {
             core.position.y = maxY
             if (core.velocity.y > 0f) {
-                core.velocity.y = -core.velocity.y * bounceRestitution
-                collided = true
+                if (core.velocity.y > 50f) {
+                    core.velocity.y = -core.velocity.y * bounceRestitution
+                    collided = true
+                    core.triggerReaction()
+                } else {
+                    core.velocity.y = 0f // Settle immediately without vibration
+                }
             }
+            // Strong floor friction
             core.velocity.x *= friction
+            if (abs(core.velocity.x) < 5f) {
+                core.velocity.x = 0f
+            }
         }
 
         return collided
@@ -95,17 +108,8 @@ class PhysicsEngine(
         val nx = dx / distance
         val ny = dy / distance
 
-        // Same charge electrostatic repulsion bonus force
-        if (a.charge == b.charge) {
-            val repulsionForce = 80f * (1f - (distance / minDist))
-            a.velocity.x -= nx * repulsionForce
-            a.velocity.y -= ny * repulsionForce
-            b.velocity.x += nx * repulsionForce
-            b.velocity.y += ny * repulsionForce
-        }
-
-        // Positional separation
-        val overlap = minDist - distance
+        // Positional separation (weighted by mass without explosive pop)
+        val overlap = (minDist - distance) * 0.85f
         val totalMass = a.mass + b.mass
         val ratioA = b.mass / totalMass
         val ratioB = a.mass / totalMass
@@ -116,18 +120,27 @@ class PhysicsEngine(
         b.position.x += nx * overlap * ratioB
         b.position.y += ny * overlap * ratioB
 
-        // Elastic momentum resolution
+        // Inelastic/soft momentum resolution (low bounce restitution, no artificial repulsion)
         val kx = a.velocity.x - b.velocity.x
         val ky = a.velocity.y - b.velocity.y
         val p = 2f * (nx * kx + ny * ky) / (a.mass + b.mass)
 
         if (p > 0f) {
             val impulse = p * (1f + bounceRestitution)
-            a.velocity.x -= impulse * b.mass * nx
+            val lateralDamping = 0.60f // Subdued horizontal push
+
+            a.velocity.x -= impulse * b.mass * nx * lateralDamping
             a.velocity.y -= impulse * b.mass * ny
 
-            b.velocity.x += impulse * a.mass * nx
+            b.velocity.x += impulse * a.mass * nx * lateralDamping
             b.velocity.y += impulse * a.mass * ny
+
+            // Tangential friction damping
+            a.velocity.x *= 0.92f
+            b.velocity.x *= 0.92f
+
+            a.triggerReaction()
+            b.triggerReaction()
         }
 
         return true

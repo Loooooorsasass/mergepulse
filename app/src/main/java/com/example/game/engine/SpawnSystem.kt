@@ -42,12 +42,20 @@ class ChargeGenerator {
 
 class SpawnSystem {
 
-    private val baseWeights = mapOf(
-        1 to 35,
-        2 to 30,
-        3 to 20,
-        4 to 10,
-        5 to 5
+    // Early game (< 60s): 65% L1, 25% L2, 10% L3
+    private val earlyGameWeights = mapOf(
+        1 to 65,
+        2 to 25,
+        3 to 10
+    )
+
+    // Mid/Late game (>= 60s): 55% L1, 25% L2, 12% L3, 6% L4, 2% L5
+    private val midGameWeights = mapOf(
+        1 to 55,
+        2 to 25,
+        3 to 12,
+        4 to 6,
+        5 to 2
     )
 
     private val chargeGenerator = ChargeGenerator()
@@ -73,16 +81,18 @@ class SpawnSystem {
     }
 
     fun pickSpawnLevel(elapsedSeconds: Float): Int {
-        val unlocked = getUnlockedLevels(elapsedSeconds)
-        val weights = unlocked.map { baseWeights[it] ?: 5 }
-        val totalWeight = weights.sum()
+        val minutes = elapsedSeconds / 60f
+        val weightMap = if (minutes < 1f) earlyGameWeights else midGameWeights
+        val levels = weightMap.keys.toList()
+        val totalWeight = weightMap.values.sum()
 
         var roll = Random.nextFloat() * totalWeight
-        for (i in unlocked.indices) {
-            roll -= weights[i]
-            if (roll <= 0) return unlocked[i]
+        for (lvl in levels) {
+            val weight = weightMap[lvl] ?: 0
+            roll -= weight
+            if (roll <= 0) return lvl
         }
-        return unlocked.last()
+        return levels.first()
     }
 
     fun generateCore(

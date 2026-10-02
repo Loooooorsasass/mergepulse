@@ -10,8 +10,9 @@ object PulseSystem {
 
     fun calcShockwaveImpulse(distance: Float, radius: Float, mergedLevel: Int): Float {
         if (distance >= radius) return 0f
-        val basePulseForce = 320f
-        val levelScale = 1.0f + (mergedLevel - 1) * 0.3f / 4.0f
+        // Controlled, predictable pulse force: nudges rather than launches
+        val basePulseForce = 115f
+        val levelScale = 1.0f + (mergedLevel - 1) * 0.2f / 4.0f
         val falloff = (1.0f - distance / radius).pow(2)
         return basePulseForce * levelScale * falloff
     }
@@ -20,7 +21,8 @@ object PulseSystem {
         source: Core,
         allCores: List<Core>
     ): Shockwave {
-        val pulseRadius = source.radius * 3.2f
+        // Tight, localized pulse radius (2.2x instead of 3.2x)
+        val pulseRadius = source.radius * 2.2f
 
         for (other in allCores) {
             if (!other.active || !other.isSpawned || other.id == source.id) continue
@@ -34,9 +36,12 @@ object PulseSystem {
                 val nx = dx / distance
                 val ny = dy / distance
 
-                val massFactor = 100f / (other.mass + 10f)
-                other.velocity.x += nx * impulseMag * massFactor
-                other.velocity.y += ny * impulseMag * massFactor
+                val massFactor = 90f / (other.mass + 15f)
+                // Subdued horizontal kick to prevent chaotic sideways ejections
+                other.velocity.x += nx * impulseMag * massFactor * 0.65f
+                other.velocity.y += ny * impulseMag * massFactor * 0.85f
+
+                other.triggerReaction()
             }
         }
 
@@ -46,7 +51,7 @@ object PulseSystem {
             x = source.position.x,
             y = source.position.y,
             maxRadius = pulseRadius,
-            force = 300f + source.level * 80f,
+            force = 120f + source.level * 30f,
             color = levelInfo.glowColor
         )
     }
@@ -56,8 +61,8 @@ object PulseSystem {
         centerY: Float,
         allCores: List<Core>
     ): Shockwave {
-        val pulseRadius = 850f
-        val force = 650f
+        val pulseRadius = 750f
+        val force = 380f
 
         for (core in allCores) {
             if (!core.active || !core.isSpawned) continue
@@ -69,10 +74,11 @@ object PulseSystem {
             if (distance > 0.1f) {
                 val nx = dx / distance
                 val ny = dy / distance
-                val impulse = force * (120f / (core.mass + 10f))
+                val impulse = force * (100f / (core.mass + 20f))
 
-                core.velocity.x += nx * impulse
-                core.velocity.y += ny * impulse - 220f
+                core.velocity.x += nx * impulse * 0.6f
+                core.velocity.y += ny * impulse - 140f
+                core.triggerReaction()
             }
         }
 
@@ -82,7 +88,7 @@ object PulseSystem {
             y = centerY,
             maxRadius = pulseRadius,
             force = force,
-            color = androidx.compose.ui.graphics.Color(0xFF00E5FF)
+            color = androidx.compose.ui.graphics.Color(0xFF2979FF)
         )
     }
 }

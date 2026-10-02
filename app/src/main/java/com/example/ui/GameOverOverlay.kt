@@ -1,7 +1,6 @@
 package com.example.ui
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -38,18 +38,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.mergepulse.R
 import com.example.game.engine.GameOverPhase
 import com.example.game.engine.GameWorld
 import com.example.game.model.CoreLevelRegistry
-import com.example.ui.theme.DangerRed
-import com.example.ui.theme.DarkBg
-import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.NeonCyan
-import com.example.ui.theme.NeonGold
 
 @Composable
 fun GameOverDialog(
@@ -62,7 +59,6 @@ fun GameOverDialog(
     val isWin = world.state == com.example.game.engine.GameState.MISSION_COMPLETE
     val fsmPhase = world.gameOverFsm.phase
 
-    // One-time lifetime notification permission launcher (Android 13+)
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { _ ->
@@ -78,22 +74,25 @@ fun GameOverDialog(
             icon = {
                 Icon(
                     imageVector = Icons.Default.NotificationsActive,
-                    contentDescription = "Notifications",
-                    tint = NeonCyan
+                    contentDescription = null,
+                    tint = Color(0xFF2563EB),
+                    modifier = Modifier.size(30.dp)
                 )
             },
             title = {
                 Text(
-                    text = "Keep Your Daily Streak!",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    text = stringResource(R.string.keep_streak),
+                    color = Color(0xFF111827),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp
                 )
             },
             text = {
                 Text(
-                    text = "Enable notifications to receive daily streak alerts, new daily missions, and claim bonus Energy Credits.",
-                    color = Color.LightGray,
-                    fontSize = 14.sp
+                    text = stringResource(R.string.notification_prompt_desc),
+                    color = Color(0xFF4B5563),
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp
                 )
             },
             confirmButton = {
@@ -114,10 +113,10 @@ fun GameOverDialog(
                             onNotificationPromptDismissed()
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = DarkBg),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF121212), contentColor = Color.White),
                     modifier = Modifier.testTag("enable_notifications_button")
                 ) {
-                    Text("ENABLE", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.enable), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             },
             dismissButton = {
@@ -127,10 +126,10 @@ fun GameOverDialog(
                     },
                     modifier = Modifier.testTag("dismiss_notification_prompt_button")
                 ) {
-                    Text("MAYBE LATER", color = Color.Gray)
+                    Text(stringResource(R.string.maybe_later), color = Color(0xFF6B7280), fontSize = 14.sp)
                 }
             },
-            containerColor = DarkSurface
+            containerColor = Color.White
         )
         return
     }
@@ -139,7 +138,7 @@ fun GameOverDialog(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBg.copy(alpha = 0.88f))
+            .background(Color(0xFF111827).copy(alpha = 0.45f))
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -147,79 +146,82 @@ fun GameOverDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .background(DarkSurface)
-                .border(2.dp, if (isWin) NeonCyan else DangerRed, RoundedCornerShape(24.dp))
-                .padding(24.dp),
+                .background(Color.White)
+                .border(1.5.dp, Color(0xFFE5E7EB), RoundedCornerShape(24.dp))
+                .padding(26.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (isWin) "MISSION COMPLETED!" else "GAME OVER",
-                color = if (isWin) NeonCyan else DangerRed,
+                text = if (isWin) stringResource(R.string.mission_completed) else stringResource(R.string.game_over),
+                color = if (isWin) Color(0xFF10B981) else Color(0xFFDC2626),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Black,
-                letterSpacing = 2.sp
+                letterSpacing = 1.sp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             // Score Card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.05f))
-                    .padding(16.dp),
+                    .background(Color(0xFFF9FAFB))
+                    .border(1.2.dp, Color(0xFFE5E7EB), RoundedCornerShape(16.dp))
+                    .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "FINAL SCORE",
-                    color = Color.Gray,
-                    fontSize = 12.sp,
+                    text = stringResource(R.string.final_score),
+                    color = Color(0xFF6B7280),
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = String.format("%,d", world.score),
-                    color = Color.White,
-                    fontSize = 36.sp,
+                    color = Color(0xFF111827),
+                    fontSize = 42.sp,
                     fontWeight = FontWeight.Black
                 )
 
                 if (world.score >= world.bestScore && world.score > 0) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "New High Score",
-                            tint = NeonGold
+                            contentDescription = null,
+                            tint = Color(0xFFD97706),
+                            modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "NEW HIGH SCORE!",
-                            color = NeonGold,
-                            fontSize = 13.sp,
+                            text = stringResource(R.string.new_high_score),
+                            color = Color(0xFFD97706),
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             // Stats breakdown
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatBox(label = "MAX COMBO", value = "x${world.bestCombo}")
-                StatBox(label = "MERGES", value = "${world.totalMergesInGame}")
+                StatBox(label = stringResource(R.string.max_combo), value = "x${world.bestCombo}")
+                StatBox(label = stringResource(R.string.total_merges), value = "${world.totalMergesInGame}")
                 val highestCoreInfo = CoreLevelRegistry.getInfo(world.highestLevelReached)
-                StatBox(label = "BEST CORE", value = highestCoreInfo.name)
+                StatBox(label = stringResource(R.string.best_core), value = highestCoreInfo.name)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Buttons: RETRY / MENU
+            // Buttons: MENU / RETRY
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -228,13 +230,15 @@ fun GameOverDialog(
                     onClick = onMenuClick,
                     modifier = Modifier
                         .weight(1f)
-                        .height(50.dp)
+                        .height(54.dp)
                         .testTag("menu_button"),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1F2937)),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, Color(0xFFE5E7EB))
                 ) {
-                    Icon(imageVector = Icons.Default.Home, contentDescription = "Home Menu")
+                    Icon(imageVector = Icons.Default.Home, contentDescription = null, modifier = Modifier.size(22.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("MENU")
+                    Text(stringResource(R.string.menu), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -242,15 +246,15 @@ fun GameOverDialog(
                 Button(
                     onClick = onPlayAgain,
                     modifier = Modifier
-                        .weight(1.2f)
-                        .height(50.dp)
+                        .weight(1.3f)
+                        .height(54.dp)
                         .testTag("play_again_button"),
-                    colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = DarkBg),
-                    shape = RoundedCornerShape(12.dp)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF121212), contentColor = Color.White),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.Replay, contentDescription = "Play Again")
+                    Icon(imageVector = Icons.Default.Replay, contentDescription = null, modifier = Modifier.size(22.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("RETRY", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.retry), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
         }
@@ -262,15 +266,16 @@ private fun StatBox(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = label,
-            color = Color.Gray,
-            fontSize = 10.sp,
+            color = Color(0xFF6B7280),
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold
         )
+        Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = value,
-            color = Color.White,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
+            color = Color(0xFF111827),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Black
         )
     }
 }

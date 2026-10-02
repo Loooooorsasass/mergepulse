@@ -2,16 +2,28 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val DarkBg = Color(0xFF0A0D14)
-val DarkSurface = Color(0xFF121826)
-val DarkSurfaceVariant = Color(0xFF1B2438)
+// Clean, modern studio aesthetic palette
+val StudioBg = Color(0xFFF8F9FA)
+val StudioSurface = Color(0xFFFFFFFF)
+val StudioSurfaceVariant = Color(0xFFF3F4F6)
+val StudioBorder = Color(0xFFE5E7EB)
 
-val NeonCyan = Color(0xFF00E5FF)
-val NeonPink = Color(0xFFFF4081)
-val NeonOrange = Color(0xFFFF9100)
-val NeonGold = Color(0xFFFFD600)
-val NeonPurple = Color(0xFF7C4DFF)
-val DangerRed = Color(0xFFFF1744)
+// Backward compatibility mappings
+val DarkBg = Color(0xFFF8F9FA)
+val DarkSurface = Color(0xFFFFFFFF)
+val DarkSurfaceVariant = Color(0xFFF3F4F6)
 
-val TextPrimary = Color(0xFFFFFFFF)
-val TextSecondary = Color(0xFFB0BEC5)
+// Friendly accent colors
+val AccentBlue = Color(0xFF1976D2)
+val AccentTeal = Color(0xFF10B981)
+val AccentAmber = Color(0xFFD97706)
+val DangerRed = Color(0xFFB91C1C)
+
+val NeonCyan = Color(0xFF1976D2)
+val NeonPink = Color(0xFFEF4444)
+val NeonOrange = Color(0xFFF97316)
+val NeonGold = Color(0xFFD97706)
+val NeonPurple = Color(0xFF8B5CF6)
+
+val TextPrimary = Color(0xFF111827)
+val TextSecondary = Color(0xFF6B7280)

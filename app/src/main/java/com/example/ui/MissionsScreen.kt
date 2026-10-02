@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -32,15 +34,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mergepulse.R
 import com.example.game.model.MissionDefinition
 import com.example.game.model.MissionRegistry
-import com.example.ui.theme.DarkBg
-import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.NeonCyan
-import com.example.ui.theme.NeonGold
 
 @Composable
 fun MissionsScreen(
@@ -55,45 +55,50 @@ fun MissionsScreen(
 
     Scaffold(
         topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(DarkSurface)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBackClick, modifier = Modifier.testTag("missions_back_button")) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBackClick, modifier = Modifier.testTag("missions_back_button")) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_back),
+                            tint = Color(0xFF1F2937),
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = stringResource(R.string.daily_missions),
+                            color = Color(0xFF111827),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp
+                        )
+                        Text(
+                            text = stringResource(R.string.daily_missions_subtitle),
+                            color = Color(0xFF6B7280),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = "DAILY MISSIONS",
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.sp
-                    )
-                    Text(
-                        text = "Refreshes every 24 hours • Same for all players",
-                        color = Color.Gray,
-                        fontSize = 11.sp
-                    )
-                }
+                HorizontalDivider(thickness = 1.dp, color = Color(0xFFE5E7EB))
             }
         },
-        containerColor = DarkBg
+        containerColor = Color(0xFFF8F9FA)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             items(todayMissions) { mission ->
                 val isCompleted = completedMissionIds.contains(mission.id)
@@ -117,13 +122,13 @@ private fun MissionItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
+            .background(Color.White)
             .border(
-                1.dp,
-                if (isCompleted) NeonCyan.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.1f),
+                1.2.dp,
+                if (isCompleted) Color(0xFF10B981) else Color(0xFFE5E7EB),
                 RoundedCornerShape(16.dp)
             )
-            .padding(16.dp)
+            .padding(18.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -134,8 +139,8 @@ private fun MissionItemCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = mission.title,
-                        color = NeonCyan,
-                        fontSize = 14.sp,
+                        color = Color(0xFF2563EB),
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
                     if (isCompleted) {
@@ -143,45 +148,48 @@ private fun MissionItemCard(
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = "Completed",
-                            tint = NeonCyan
+                            tint = Color(0xFF10B981),
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = mission.description,
-                    color = Color.White,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium
+                    color = Color(0xFF111827),
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "REWARD: +${mission.rewardCredits} CREDITS",
-                    color = NeonGold,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "+${mission.rewardCredits} CREDITS",
+                    color = Color(0xFFD97706),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(14.dp))
 
             Button(
                 onClick = onStartClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isCompleted) Color.White.copy(alpha = 0.15f) else NeonCyan,
-                    contentColor = if (isCompleted) Color.White else DarkBg
+                    containerColor = if (isCompleted) Color(0xFFE5E7EB) else Color(0xFF121212),
+                    contentColor = if (isCompleted) Color(0xFF4B5563) else Color.White
                 ),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.testTag("start_mission_${mission.id}")
             ) {
                 Icon(
                     imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Start Mission"
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = if (isCompleted) "REPLAY" else "START",
-                    fontWeight = FontWeight.Bold
+                    text = if (isCompleted) stringResource(R.string.replay) else stringResource(R.string.start),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
                 )
             }
         }

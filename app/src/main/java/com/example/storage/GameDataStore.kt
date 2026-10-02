@@ -29,7 +29,8 @@ data class UserGameStats(
     val unlockedThemes: Set<String> = setOf("default"),
     val selectedTheme: String = "default",
     val hasCompletedFtue: Boolean = false,
-    val hasPromptedNotification: Boolean = false
+    val hasPromptedNotification: Boolean = false,
+    val selectedLanguage: String = "en"
 )
 
 class GameDataStore(private val context: Context) {
@@ -50,6 +51,7 @@ class GameDataStore(private val context: Context) {
         val SELECTED_THEME = stringPreferencesKey("selected_theme")
         val HAS_COMPLETED_FTUE = booleanPreferencesKey("has_completed_ftue")
         val HAS_PROMPTED_NOTIFICATION = booleanPreferencesKey("has_prompted_notification")
+        val SELECTED_LANGUAGE = stringPreferencesKey("selected_language")
     }
 
     val statsFlow: Flow<UserGameStats> = context.dataStore.data.map { prefs ->
@@ -76,7 +78,8 @@ class GameDataStore(private val context: Context) {
             unlockedThemes = if (themes.isEmpty()) setOf("default") else themes,
             selectedTheme = prefs[Keys.SELECTED_THEME] ?: "default",
             hasCompletedFtue = prefs[Keys.HAS_COMPLETED_FTUE] ?: false,
-            hasPromptedNotification = prefs[Keys.HAS_PROMPTED_NOTIFICATION] ?: false
+            hasPromptedNotification = prefs[Keys.HAS_PROMPTED_NOTIFICATION] ?: false,
+            selectedLanguage = prefs[Keys.SELECTED_LANGUAGE] ?: "en"
         )
     }
 
@@ -194,6 +197,12 @@ class GameDataStore(private val context: Context) {
     suspend fun setVibrationEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[Keys.VIBRATION_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setLanguage(languageCode: String) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.SELECTED_LANGUAGE] = languageCode
         }
     }
 

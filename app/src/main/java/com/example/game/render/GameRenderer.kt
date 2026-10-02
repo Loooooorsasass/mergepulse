@@ -2,197 +2,173 @@ package com.example.game.render
 
 import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import com.example.game.engine.GameWorld
 import com.example.game.model.Charge
 import com.example.game.model.Core
 import com.example.game.model.CoreLevelRegistry
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.random.Random
 
 class GameRenderer {
 
-    // Paints
+    // Chamber & Background
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val chamberPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val wallBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val dangerLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val dangerZonePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val dangerTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val aimLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val coreBodyPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val coreGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val coreRingPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val symbolTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val symbolStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val levelBadgeBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val levelBadgeTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    // Core Drawing
+    private val coreFillPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val coreBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val coreDetailPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val symbolPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val particlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    // Effects
     private val shockwavePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val particlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val floatTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val floatTextStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val tempRectF = RectF()
     private val textBounds = Rect()
+    private val tempRectF = RectF()
+    private val tempPath = Path()
 
     init {
+        bgPaint.color = android.graphics.Color.WHITE
         bgPaint.style = Paint.Style.FILL
+
+        chamberPaint.color = android.graphics.Color.WHITE
         chamberPaint.style = Paint.Style.FILL
 
-        wallBorderPaint.color = android.graphics.Color.parseColor("#00E5FF")
-        wallBorderPaint.style = Paint.Style.STROKE
-        wallBorderPaint.strokeWidth = 4f
-
-        gridPaint.style = Paint.Style.STROKE
-        gridPaint.strokeWidth = 1.5f
-
-        dangerLinePaint.color = android.graphics.Color.parseColor("#FF1744")
+        // Prominent, clear danger line
+        dangerLinePaint.color = android.graphics.Color.parseColor("#B91C1C")
         dangerLinePaint.style = Paint.Style.STROKE
-        dangerLinePaint.strokeWidth = 3.5f
-        dangerLinePaint.pathEffect = DashPathEffect(floatArrayOf(16f, 12f), 0f)
+        dangerLinePaint.strokeWidth = 4.5f
 
-        dangerZonePaint.style = Paint.Style.FILL
+        dangerTextPaint.color = android.graphics.Color.parseColor("#B91C1C")
+        dangerTextPaint.textSize = 28f
+        dangerTextPaint.textAlign = Paint.Align.RIGHT
+        dangerTextPaint.isFakeBoldText = true
 
-        aimLinePaint.color = android.graphics.Color.parseColor("#8000E5FF")
+        aimLinePaint.color = android.graphics.Color.parseColor("#90A4AE")
         aimLinePaint.style = Paint.Style.STROKE
         aimLinePaint.strokeWidth = 2.5f
         aimLinePaint.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
 
-        symbolTextPaint.textAlign = Paint.Align.CENTER
-        symbolTextPaint.isFakeBoldText = true
+        coreFillPaint.style = Paint.Style.FILL
 
-        symbolStrokePaint.textAlign = Paint.Align.CENTER
-        symbolStrokePaint.style = Paint.Style.STROKE
-        symbolStrokePaint.strokeWidth = 4f
-        symbolStrokePaint.color = android.graphics.Color.parseColor("#0A0D14")
+        coreBorderPaint.style = Paint.Style.STROKE
+        coreBorderPaint.strokeWidth = 3f
 
-        levelBadgeBgPaint.color = android.graphics.Color.parseColor("#D90A0D14")
-        levelBadgeBgPaint.style = Paint.Style.FILL
+        coreDetailPaint.style = Paint.Style.STROKE
+        coreDetailPaint.strokeWidth = 2f
 
-        levelBadgeTextPaint.color = android.graphics.Color.WHITE
-        levelBadgeTextPaint.textAlign = Paint.Align.CENTER
-        levelBadgeTextPaint.isFakeBoldText = true
+        symbolPaint.textAlign = Paint.Align.CENTER
+        symbolPaint.isFakeBoldText = true
 
         floatTextPaint.textAlign = Paint.Align.CENTER
         floatTextPaint.isFakeBoldText = true
 
         floatTextStrokePaint.textAlign = Paint.Align.CENTER
         floatTextStrokePaint.style = Paint.Style.STROKE
-        floatTextStrokePaint.strokeWidth = 4.5f
-        floatTextStrokePaint.color = android.graphics.Color.BLACK
+        floatTextStrokePaint.strokeWidth = 4f
+        floatTextStrokePaint.color = android.graphics.Color.WHITE
         floatTextStrokePaint.isFakeBoldText = true
     }
 
-    private fun applyThemeColors(themeId: String) {
-        when (themeId) {
-            "cyber_neon" -> {
-                bgPaint.color = android.graphics.Color.parseColor("#10051A")
-                chamberPaint.color = android.graphics.Color.parseColor("#1B0A2E")
-                wallBorderPaint.color = android.graphics.Color.parseColor("#FF007F")
-                gridPaint.color = android.graphics.Color.parseColor("#2E104D")
-            }
-            "plasma_void" -> {
-                bgPaint.color = android.graphics.Color.parseColor("#090A1A")
-                chamberPaint.color = android.graphics.Color.parseColor("#0F122B")
-                wallBorderPaint.color = android.graphics.Color.parseColor("#7C4DFF")
-                gridPaint.color = android.graphics.Color.parseColor("#1B214D")
-            }
-            "golden_core" -> {
-                bgPaint.color = android.graphics.Color.parseColor("#141008")
-                chamberPaint.color = android.graphics.Color.parseColor("#1F180B")
-                wallBorderPaint.color = android.graphics.Color.parseColor("#FFD600")
-                gridPaint.color = android.graphics.Color.parseColor("#382D12")
-            }
-            else -> {
-                bgPaint.color = android.graphics.Color.parseColor("#0A0D14")
-                chamberPaint.color = android.graphics.Color.parseColor("#0D111A")
-                wallBorderPaint.color = android.graphics.Color.parseColor("#00E5FF")
-                gridPaint.color = android.graphics.Color.parseColor("#152033")
-            }
-        }
-    }
+    fun render(
+        canvas: NativeCanvas,
+        world: GameWorld,
+        screenWidth: Float,
+        screenHeight: Float,
+        dangerLabel: String = "DANGER"
+    ) {
+        val now = System.currentTimeMillis() / 1000f
 
-    fun render(canvas: NativeCanvas, world: GameWorld, screenWidth: Float, screenHeight: Float) {
-        applyThemeColors(world.currentThemeId)
+        // 1. Clean, minimalist white background
+        canvas.drawRect(0f, 0f, screenWidth, screenHeight, bgPaint)
 
-        // Screen Shake Juice
         canvas.save()
+        // Very subtle camera shake only on heavy impact
         if (world.screenShakeIntensity > 0f) {
-            val shakeX = (Random.nextFloat() - 0.5f) * world.screenShakeIntensity
-            val shakeY = (Random.nextFloat() - 0.5f) * world.screenShakeIntensity
+            val shakeX = (kotlin.random.Random.nextFloat() - 0.5f) * world.screenShakeIntensity * 0.25f
+            val shakeY = (kotlin.random.Random.nextFloat() - 0.5f) * world.screenShakeIntensity * 0.25f
             canvas.translate(shakeX, shakeY)
         }
 
-        // 1. Draw Overall Background
-        canvas.drawRect(0f, 0f, screenWidth, screenHeight, bgPaint)
-
-        // 2. Draw Chamber Containment Area
-        tempRectF.set(world.chamberLeft, world.spawnLineY - 40f, world.chamberRight, world.chamberFloorY)
-        canvas.drawRoundRect(tempRectF, 24f, 24f, chamberPaint)
-
-        // Chamber Grid Accent
-        val gridStep = 60f
-        var gx = world.chamberLeft + gridStep
-        while (gx < world.chamberRight) {
-            canvas.drawLine(gx, world.spawnLineY - 40f, gx, world.chamberFloorY, gridPaint)
-            gx += gridStep
+        // 2. Bold, high-contrast Danger Line (Section 5)
+        val overflowTime = world.overflowWatcher.currentOverflowTime
+        when {
+            overflowTime > 1.5f -> {
+                // Critical danger: stronger rapid pulse and bright warning line
+                val pulseDash = (sin(now * 16f) * 6f).coerceAtLeast(0f)
+                dangerLinePaint.pathEffect = DashPathEffect(floatArrayOf(12f + pulseDash, 8f), now * 35f)
+                dangerLinePaint.strokeWidth = 6.5f
+                dangerLinePaint.color = android.graphics.Color.parseColor("#DC2626")
+                dangerTextPaint.color = android.graphics.Color.parseColor("#DC2626")
+            }
+            world.isDangerActive || overflowTime > 0f -> {
+                // Warning danger: subtle pulse
+                val pulseDash = (sin(now * 8f) * 3f).coerceAtLeast(0f)
+                dangerLinePaint.pathEffect = DashPathEffect(floatArrayOf(14f + pulseDash, 10f), now * 20f)
+                dangerLinePaint.strokeWidth = 5.2f
+                dangerLinePaint.color = android.graphics.Color.parseColor("#B91C1C")
+                dangerTextPaint.color = android.graphics.Color.parseColor("#B91C1C")
+            }
+            else -> {
+                // Normal: clean, solid, static line
+                dangerLinePaint.pathEffect = null
+                dangerLinePaint.strokeWidth = 4.5f
+                dangerLinePaint.color = android.graphics.Color.parseColor("#B91C1C")
+                dangerTextPaint.color = android.graphics.Color.parseColor("#B91C1C")
+            }
         }
 
-        // Chamber Outer Border
-        canvas.drawRoundRect(tempRectF, 24f, 24f, wallBorderPaint)
-
-        // 3. Draw Danger Warning Zone & Line
-        if (world.isDangerActive) {
-            val pulsingAlpha = (110 + (sin(System.currentTimeMillis() * 0.018) * 75)).toInt().coerceIn(50, 185)
-            dangerZonePaint.color = android.graphics.Color.argb(pulsingAlpha, 255, 23, 68)
-            canvas.drawRect(world.chamberLeft, world.spawnLineY, world.chamberRight, world.dangerLineY, dangerZonePaint)
-        }
-
-        // Danger Line
         canvas.drawLine(world.chamberLeft, world.dangerLineY, world.chamberRight, world.dangerLineY, dangerLinePaint)
+        canvas.drawText(dangerLabel, world.chamberRight - 6f, world.dangerLineY - 8f, dangerTextPaint)
 
-        // 4. Draw Aim Trajectory & Aiming Core Preview
+        // 3. Aim Trajectory (Subtle dashed line)
         world.currentCore?.let { core ->
             if (!core.isSpawned) {
                 canvas.drawLine(core.position.x, core.position.y, core.position.x, world.chamberFloorY - core.radius, aimLinePaint)
-                drawCore(canvas, core)
+                drawCore(canvas, core, now)
             }
         }
 
-        // 5. Draw Active Cores
+        // 4. Active Cores in Chamber
         for (core in world.activeCores) {
             if (core.active) {
-                drawCore(canvas, core)
+                drawCore(canvas, core, now)
             }
         }
 
-        // 6. Draw Shockwaves
+        // 5. Clean Shockwaves (Soft expanding rings)
         for (wave in world.shockwaves) {
             shockwavePaint.color = wave.color.toArgb()
             shockwavePaint.style = Paint.Style.STROKE
-            shockwavePaint.strokeWidth = 6.5f * wave.alpha
-            shockwavePaint.alpha = (wave.alpha * 230).toInt().coerceIn(0, 255)
+            shockwavePaint.strokeWidth = 3.5f * wave.alpha
+            shockwavePaint.alpha = (wave.alpha * 150).toInt().coerceIn(0, 255)
             canvas.drawCircle(wave.x, wave.y, wave.currentRadius, shockwavePaint)
         }
 
-        // 7. Draw Particles
+        // 6. Subtle Particles
         for (p in world.particles) {
             particlePaint.color = p.color.toArgb()
-            particlePaint.alpha = (p.alpha * 255).toInt().coerceIn(0, 255)
+            particlePaint.alpha = (p.alpha * 180).toInt().coerceIn(0, 255)
             particlePaint.style = Paint.Style.FILL
-            canvas.drawCircle(p.x, p.y, p.radius, particlePaint)
+            canvas.drawCircle(p.x, p.y, p.radius * 0.7f, particlePaint)
         }
 
-        // 8. Draw Floating Score Text
+        // 7. Floating Score Text (Clean with white outline)
         for (ft in world.floatingTexts) {
-            val textSize = if (ft.isCombo) 48f * ft.scale else 38f
+            val textSize = if (ft.isCombo) 44f * ft.scale else 36f
             floatTextPaint.textSize = textSize
             floatTextStrokePaint.textSize = textSize
 
@@ -205,110 +181,177 @@ class GameRenderer {
             canvas.drawText(ft.text, ft.x, ft.y, floatTextPaint)
         }
 
+        // Note: Section 11 - Removed "containment chamber" label completely!
+
         canvas.restore()
     }
 
-    fun drawCore(canvas: NativeCanvas, core: Core) {
-        val levelInfo = CoreLevelRegistry.getInfo(core.level)
-        val mainColor = if (core.charge == Charge.POSITIVE) levelInfo.positiveColor else levelInfo.negativeColor
-        val glowColor = levelInfo.glowColor
-
+    private fun drawCore(canvas: NativeCanvas, core: Core, now: Float) {
         val cx = core.position.x
         val cy = core.position.y
+        val r = core.radius
+        val phase = (core.id % 1000) / 100f
 
-        val scale = if (core.mergeAnimTime > 0f) {
-            1f + 0.35f * (core.mergeAnimTime / 0.3f)
+        // Section 5: Limited reaction rule!
+        // If core has reacted 2 times, it stays completely still (no continuous oscillation)
+        val idleScale = when {
+            !core.isSpawned -> 1f + sin(now * 2.2f + phase) * 0.02f // Ready preview breathes slightly
+            core.reactionCount >= 2 -> 1f                           // Grounded/settled core stays still
+            else -> 1f + sin(now * 2.0f + phase) * 0.008f           // Very tiny subtle life before settling
+        }
+
+        // Merge Pop Ease
+        val mergeProgress = (1f - core.mergeAnimTime / 0.25f).coerceIn(0f, 1f)
+        val mergeEase = if (core.mergeAnimTime > 0f) {
+            1f + 0.22f * sin(mergeProgress * Math.PI).toFloat()
         } else {
             1f
         }
-        val r = core.radius * scale
 
-        // 1. Outer Glow Pulse Aura
-        coreGlowPaint.style = Paint.Style.FILL
-        val glowRadius = r * (1.32f + if (core.level >= 5) 0.15f else 0f)
-        val radialGlow = android.graphics.RadialGradient(
-            cx, cy, glowRadius,
-            intArrayOf(glowColor.copy(alpha = 0.45f).toArgb(), android.graphics.Color.TRANSPARENT),
-            floatArrayOf(0.4f, 1.0f),
-            android.graphics.Shader.TileMode.CLAMP
-        )
-        coreGlowPaint.shader = radialGlow
-        canvas.drawCircle(cx, cy, glowRadius, coreGlowPaint)
-        coreGlowPaint.shader = null
+        // Subtle falling stretch based on vertical speed
+        val speed = abs(core.velocity.y)
+        val stretch = if (core.isSpawned) (speed / 2000f).coerceIn(0f, 0.045f) else 0f
 
-        // High Level Orbital Particle Aura (Singularity / Star / Nova / Plasma)
-        if (core.level >= 7) {
-            val orbitCount = core.level - 4
-            val orbitStep = (2f * Math.PI / orbitCount).toFloat()
-            for (k in 0 until orbitCount) {
-                val orbitAngle = core.rotationAngle * 2f + k * orbitStep
-                val ox = cx + cos(orbitAngle) * (r * 1.22f)
-                val oy = cy + sin(orbitAngle) * (r * 1.22f)
-                particlePaint.color = glowColor.toArgb()
-                canvas.drawCircle(ox, oy, 4f, particlePaint)
-            }
-        }
+        val scaleX = idleScale * mergeEase * (1f - stretch * 0.35f)
+        val scaleY = idleScale * mergeEase * (1f + stretch)
 
-        // 2. Core Main Radial Body Sphere
-        val mainShader = android.graphics.RadialGradient(
-            cx - r * 0.3f, cy - r * 0.3f, r * 1.1f,
-            intArrayOf(android.graphics.Color.WHITE, mainColor.toArgb(), darkShade(mainColor.toArgb())),
-            floatArrayOf(0f, 0.55f, 1.0f),
-            android.graphics.Shader.TileMode.CLAMP
-        )
-        coreBodyPaint.style = Paint.Style.FILL
-        coreBodyPaint.shader = mainShader
-        canvas.drawCircle(cx, cy, r, coreBodyPaint)
-        coreBodyPaint.shader = null
+        canvas.save()
+        canvas.scale(scaleX, scaleY, cx, cy)
 
-        // 3. Orbiting Energy Ring
-        coreRingPaint.style = Paint.Style.STROKE
-        coreRingPaint.strokeWidth = (r * 0.08f).coerceAtLeast(2.5f)
-        coreRingPaint.color = mainColor.toArgb()
-        canvas.drawCircle(cx, cy, r * 0.82f, coreRingPaint)
+        val levelInfo = CoreLevelRegistry.getInfo(core.level)
+        val fillColor = if (core.charge == Charge.POSITIVE) levelInfo.positiveColor else levelInfo.negativeColor
+        val borderColor = darkOutlineColor(fillColor.toArgb())
+        val detailColor = semiDarkOutlineColor(fillColor.toArgb())
+        val symbolColor = symbolTextColor(fillColor.toArgb())
 
-        val tickCount = (4 + core.level).coerceAtMost(12)
-        val angleStep = (2f * Math.PI / tickCount).toFloat()
-        for (i in 0 until tickCount) {
-            val tickAngle = core.rotationAngle + i * angleStep
-            val tx1 = cx + cos(tickAngle) * (r * 0.72f)
-            val ty1 = cy + sin(tickAngle) * (r * 0.72f)
-            val tx2 = cx + cos(tickAngle) * (r * 0.88f)
-            val ty2 = cy + sin(tickAngle) * (r * 0.88f)
-            canvas.drawLine(tx1, ty1, tx2, ty2, coreRingPaint)
-        }
+        // Base Core Fill
+        coreFillPaint.color = fillColor.toArgb()
+        canvas.drawCircle(cx, cy, r, coreFillPaint)
 
-        // 4. Center Charge Symbol (+ or -) with Outline
-        val symbolSize = (r * 0.9f).coerceIn(24f, 80f)
-        symbolTextPaint.textSize = symbolSize
-        symbolStrokePaint.textSize = symbolSize
-        symbolTextPaint.color = android.graphics.Color.WHITE
+        // Section 9: Unique Procedural Geometric Identity per Tier
+        coreDetailPaint.color = detailColor
+        drawTierProceduralGeometry(canvas, cx, cy, r, core.level)
 
-        val symbolStr = core.charge.symbol
-        symbolTextPaint.getTextBounds(symbolStr, 0, symbolStr.length, textBounds)
-        val symbolY = cy + textBounds.height() / 2f - 3f
+        // Outer Perimeter Border
+        coreBorderPaint.color = borderColor
+        canvas.drawCircle(cx, cy, r, coreBorderPaint)
 
-        canvas.drawText(symbolStr, cx, symbolY, symbolStrokePaint)
-        canvas.drawText(symbolStr, cx, symbolY, symbolTextPaint)
+        // Section 10: VERY LARGE + / - CHARGE SYMBOL (scalable to radius)
+        val symbol = core.charge.symbol
+        symbolPaint.color = symbolColor
+        val targetTextSize = r * 1.15f
+        symbolPaint.textSize = targetTextSize
+        symbolPaint.getTextBounds(symbol, 0, symbol.length, textBounds)
+        val textY = cy + textBounds.height() / 2f - 2f
+        canvas.drawText(symbol, cx, textY, symbolPaint)
 
-        // 5. Core Level Badge
-        val badgeW = (r * 0.75f).coerceIn(24f, 50f)
-        val badgeH = (r * 0.36f).coerceIn(14f, 24f)
-        val badgeY = cy + r * 0.55f
-
-        tempRectF.set(cx - badgeW / 2f, badgeY - badgeH / 2f, cx + badgeW / 2f, badgeY + badgeH / 2f)
-        canvas.drawRoundRect(tempRectF, badgeH / 2f, badgeH / 2f, levelBadgeBgPaint)
-
-        levelBadgeTextPaint.textSize = (badgeH * 0.75f).coerceAtLeast(10f)
-        val lvlText = "L${core.level}"
-        levelBadgeTextPaint.getTextBounds(lvlText, 0, lvlText.length, textBounds)
-        canvas.drawText(lvlText, cx, badgeY + textBounds.height() / 2f - 1.5f, levelBadgeTextPaint)
+        canvas.restore()
     }
 
-    private fun darkShade(colorInt: Int): Int {
-        val hsv = FloatArray(3)
-        android.graphics.Color.colorToHSV(colorInt, hsv)
-        hsv[2] *= 0.35f
-        return android.graphics.Color.HSVToColor(hsv)
+    private fun drawTierProceduralGeometry(canvas: NativeCanvas, cx: Float, cy: Float, r: Float, level: Int) {
+        when (level) {
+            1 -> {
+                // Tier 1: Clean sphere, tiny center accent dot
+                canvas.drawCircle(cx, cy, r * 0.16f, coreDetailPaint)
+            }
+            2 -> {
+                // Tier 2: Single delicate inner concentric ring
+                canvas.drawCircle(cx, cy, r * 0.72f, coreDetailPaint)
+            }
+            3 -> {
+                // Tier 3: Double concentric inner rings
+                canvas.drawCircle(cx, cy, r * 0.80f, coreDetailPaint)
+                canvas.drawCircle(cx, cy, r * 0.60f, coreDetailPaint)
+            }
+            4 -> {
+                // Tier 4: Segmented 4-notch orbital ring
+                tempRectF.set(cx - r * 0.75f, cy - r * 0.75f, cx + r * 0.75f, cy + r * 0.75f)
+                canvas.drawArc(tempRectF, 15f, 60f, false, coreDetailPaint)
+                canvas.drawArc(tempRectF, 105f, 60f, false, coreDetailPaint)
+                canvas.drawArc(tempRectF, 195f, 60f, false, coreDetailPaint)
+                canvas.drawArc(tempRectF, 285f, 60f, false, coreDetailPaint)
+            }
+            5 -> {
+                // Tier 5: Inner diamond geometry
+                tempPath.reset()
+                val d = r * 0.72f
+                tempPath.moveTo(cx, cy - d)
+                tempPath.lineTo(cx + d, cy)
+                tempPath.lineTo(cx, cy + d)
+                tempPath.lineTo(cx - d, cy)
+                tempPath.close()
+                canvas.drawPath(tempPath, coreDetailPaint)
+            }
+            6 -> {
+                // Tier 6: 6-segment radar ring
+                tempRectF.set(cx - r * 0.78f, cy - r * 0.78f, cx + r * 0.78f, cy + r * 0.78f)
+                for (i in 0 until 6) {
+                    canvas.drawArc(tempRectF, i * 60f + 10f, 40f, false, coreDetailPaint)
+                }
+            }
+            7 -> {
+                // Tier 7: Concentric ring + rounded quad contour
+                canvas.drawCircle(cx, cy, r * 0.82f, coreDetailPaint)
+                val q = r * 0.52f
+                tempRectF.set(cx - q, cy - q, cx + q, cy + q)
+                canvas.drawRoundRect(tempRectF, 12f, 12f, coreDetailPaint)
+            }
+            8 -> {
+                // Tier 8: 8 tick marks around perimeter
+                for (i in 0 until 8) {
+                    val angle = (i * Math.PI / 4.0).toFloat()
+                    val x1 = cx + cos(angle) * (r * 0.84f)
+                    val y1 = cy + sin(angle) * (r * 0.84f)
+                    val x2 = cx + cos(angle) * (r * 0.96f)
+                    val y2 = cy + sin(angle) * (r * 0.96f)
+                    canvas.drawLine(x1, y1, x2, y2, coreDetailPaint)
+                }
+            }
+            9 -> {
+                // Tier 9: 4-pointed soft star contour inside
+                tempPath.reset()
+                val outer = r * 0.82f
+                val inner = r * 0.40f
+                for (i in 0 until 8) {
+                    val rad = if (i % 2 == 0) outer else inner
+                    val angle = (i * Math.PI / 4.0 - Math.PI / 2.0).toFloat()
+                    val px = cx + cos(angle) * rad
+                    val py = cy + sin(angle) * rad
+                    if (i == 0) tempPath.moveTo(px, py) else tempPath.lineTo(px, py)
+                }
+                tempPath.close()
+                canvas.drawPath(tempPath, coreDetailPaint)
+            }
+            10 -> {
+                // Tier 10 (Singularity): Multi-layered nested cosmic rings
+                canvas.drawCircle(cx, cy, r * 0.86f, coreDetailPaint)
+                canvas.drawCircle(cx, cy, r * 0.68f, coreDetailPaint)
+                canvas.drawCircle(cx, cy, r * 0.50f, coreDetailPaint)
+            }
+        }
+    }
+
+    private fun darkOutlineColor(argb: Int): Int {
+        val a = android.graphics.Color.alpha(argb)
+        val r = (android.graphics.Color.red(argb) * 0.68f).toInt()
+        val g = (android.graphics.Color.green(argb) * 0.68f).toInt()
+        val b = (android.graphics.Color.blue(argb) * 0.68f).toInt()
+        return android.graphics.Color.argb(a, r, g, b)
+    }
+
+    private fun semiDarkOutlineColor(argb: Int): Int {
+        val a = (android.graphics.Color.alpha(argb) * 0.45f).toInt()
+        val r = (android.graphics.Color.red(argb) * 0.65f).toInt()
+        val g = (android.graphics.Color.green(argb) * 0.65f).toInt()
+        val b = (android.graphics.Color.blue(argb) * 0.65f).toInt()
+        return android.graphics.Color.argb(a, r, g, b)
+    }
+
+    private fun symbolTextColor(argb: Int): Int {
+        val a = android.graphics.Color.alpha(argb)
+        val r = (android.graphics.Color.red(argb) * 0.35f).toInt()
+        val g = (android.graphics.Color.green(argb) * 0.35f).toInt()
+        val b = (android.graphics.Color.blue(argb) * 0.35f).toInt()
+        return android.graphics.Color.argb(a, r, g, b)
     }
 }

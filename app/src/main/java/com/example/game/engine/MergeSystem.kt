@@ -21,26 +21,26 @@ object MergeSystem {
         val midX = (a.position.x + b.position.x) * 0.5f
         val midY = (a.position.y + b.position.y) * 0.5f
 
-        // Flip charge for next tier
         val nextCharge = a.charge.flipped()
         val nextRadius = CoreLevelRegistry.calculateRadius(nextLevel, densityFactor)
 
-        // Deactivate merged parents
         a.active = false
         b.active = false
 
         return Core(
             id = System.nanoTime(),
             position = Vec2(midX, midY),
-            velocity = Vec2(0f, -120f), // Initial subtle upward pop momentum
+            velocity = Vec2(0f, -50f), // Soft, contained upward pop
             level = nextLevel,
             charge = nextCharge,
             radius = nextRadius,
             active = true,
             isSpawned = true,
-            mergeAnimTime = 0.3f,
-            pulseFlashTime = 0.4f,
-            rotationSpeed = if (nextLevel % 2 == 0) 1.5f else -1.5f
+            mergeAnimTime = 0.25f,
+            pulseFlashTime = 0.3f,
+            reactionCount = 0, // Reset for new tier
+            collisionSoundCount = 0,
+            rotationSpeed = 0f
         )
     }
 }

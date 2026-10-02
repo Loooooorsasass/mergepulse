@@ -7,6 +7,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,13 +19,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -40,15 +45,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mergepulse.R
 import com.example.storage.UserGameStats
-import com.example.ui.theme.DarkBg
-import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.NeonCyan
-import com.example.ui.theme.NeonGold
-import com.example.ui.theme.NeonPink
 
 @Composable
 fun HomeScreen(
@@ -63,9 +65,9 @@ fun HomeScreen(
     val infiniteTransition = rememberInfiniteTransition(label = "logoPulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = 1.22f,
+        targetValue = 1.08f,
         animationSpec = InfiniteRepeatableSpec(
-            animation = tween(1400),
+            animation = tween(1600),
             repeatMode = RepeatMode.Reverse
         ),
         label = "pulse"
@@ -74,8 +76,8 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBg)
-            .padding(20.dp),
+            .background(Color(0xFFF8F9FA))
+            .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -83,7 +85,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Top Row: Daily Streak & Credit Balance
+            // Top Row: Daily Streak & Credit Balance Cards (Localized + Large text)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -91,47 +93,49 @@ fun HomeScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(NeonPink.copy(alpha = 0.2f))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color.White)
+                        .border(1.2.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
+                        .padding(horizontal = 16.dp, vertical = 9.dp)
                 ) {
                     Text(
-                        text = "⚡ STREAK: ${stats.dailyStreak} DAYS",
-                        color = NeonPink,
-                        fontSize = 12.sp,
+                        text = stringResource(R.string.streak_days, stats.dailyStreak),
+                        color = Color(0xFFEF4444),
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(NeonGold.copy(alpha = 0.2f))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color.White)
+                        .border(1.2.dp, Color(0xFFE5E7EB), RoundedCornerShape(14.dp))
+                        .padding(horizontal = 16.dp, vertical = 9.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.MonetizationOn,
-                            contentDescription = "Credits",
-                            tint = NeonGold,
-                            modifier = Modifier.size(16.dp)
+                            contentDescription = stringResource(R.string.cd_credits),
+                            tint = Color(0xFFD97706),
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "${stats.credits} CREDITS",
-                            color = NeonGold,
-                            fontSize = 12.sp,
+                            text = stringResource(R.string.credits_count, stats.credits),
+                            color = Color(0xFF1F2937),
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // Animated Sci-Fi Core Logo
+            // Animated Dual-Core Logo
             Box(
-                modifier = Modifier.size(120.dp),
+                modifier = Modifier.size(130.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
@@ -139,58 +143,65 @@ fun HomeScreen(
                     val cy = size.height / 2f
 
                     drawCircle(
-                        color = NeonCyan.copy(alpha = 0.35f),
-                        radius = (size.width * 0.42f) * pulseScale,
-                        style = Stroke(width = 4f)
+                        color = Color(0xFF90CAF9).copy(alpha = 0.35f),
+                        radius = (size.width * 0.44f) * pulseScale,
+                        style = Stroke(width = 3.5f)
                     )
 
                     drawCircle(
-                        color = NeonPink,
+                        color = Color(0xFFFFAB91),
                         radius = size.width * 0.28f,
-                        center = Offset(cx - 16f, cy - 10f)
+                        center = Offset(cx - 18f, cy - 10f)
                     )
-
                     drawCircle(
-                        color = NeonCyan,
+                        color = Color(0xFFE59881),
                         radius = size.width * 0.28f,
-                        center = Offset(cx + 16f, cy + 10f)
+                        center = Offset(cx - 18f, cy - 10f),
+                        style = Stroke(width = 2.5f)
                     )
 
                     drawCircle(
-                        color = Color.White,
-                        radius = size.width * 0.32f,
-                        style = Stroke(width = 3f)
+                        color = Color(0xFF90CAF9),
+                        radius = size.width * 0.28f,
+                        center = Offset(cx + 18f, cy + 10f)
+                    )
+                    drawCircle(
+                        color = Color(0xFF7CA9DC),
+                        radius = size.width * 0.28f,
+                        center = Offset(cx + 18f, cy + 10f),
+                        style = Stroke(width = 2.5f)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "MERGE PULSE",
-                color = Color.White,
-                fontSize = 32.sp,
+                text = stringResource(R.string.app_name),
+                color = Color(0xFF111827),
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Black,
-                letterSpacing = 3.sp
+                letterSpacing = 2.sp
             )
 
             Text(
-                text = "CHARGE MANAGEMENT & CHAIN SHOCKWAVES",
-                color = NeonCyan,
-                fontSize = 10.sp,
+                text = stringResource(R.string.tagline),
+                color = Color(0xFF6B7280),
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 1.5.sp
+                letterSpacing = 1.2.sp
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Best Score Card
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(DarkSurface)
-                    .padding(16.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Color.White)
+                    .border(1.2.dp, Color(0xFFE5E7EB), RoundedCornerShape(18.dp))
+                    .padding(20.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -198,144 +209,209 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.EmojiEvents,
-                            contentDescription = "Trophy",
-                            tint = NeonGold,
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(46.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFFEF3C7)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.EmojiEvents,
+                                contentDescription = stringResource(R.string.cd_trophy),
+                                tint = Color(0xFFD97706),
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(14.dp))
                         Column {
                             Text(
-                                text = "PERSONAL BEST",
-                                color = Color.Gray,
-                                fontSize = 11.sp,
+                                text = stringResource(R.string.personal_best),
+                                color = Color(0xFF6B7280),
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = String.format("%,d Pts", stats.bestScore),
-                                color = Color.White,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                text = String.format("%,d", stats.bestScore),
+                                color = Color(0xFF111827),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Black
                             )
                         }
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            text = "MAX COMBO",
-                            color = Color.Gray,
-                            fontSize = 11.sp,
+                            text = stringResource(R.string.max_combo),
+                            color = Color(0xFF6B7280),
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = "x${stats.bestCombo}",
-                            color = NeonPink,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            color = Color(0xFF2563EB),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Black
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
-            // Menu Buttons
+            // Main CTA: PLAY GAME (Solid Black Pill)
             Button(
                 onClick = onPlayEndless,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp)
+                    .height(58.dp)
                     .testTag("play_endless_button"),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = NeonCyan,
-                    contentColor = DarkBg
+                    containerColor = Color(0xFF121212),
+                    contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play Endless Mode")
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = stringResource(R.string.play_game),
+                    tint = Color.White,
+                    modifier = Modifier.size(26.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "PLAY ENDLESS MODE",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp
+                    text = stringResource(R.string.play_game),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
+            // Secondary Actions
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedButton(
                     onClick = onMissionsClick,
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp)
+                        .height(52.dp)
                         .testTag("missions_button"),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1F2937)),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, Color(0xFFE5E7EB))
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.TrackChanges,
+                        contentDescription = stringResource(R.string.cd_missions),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "MISSIONS (${stats.completedMissionIds.size}/10)",
-                        color = Color.White,
-                        fontSize = 12.sp,
+                        text = stringResource(R.string.missions).uppercase(),
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
                 OutlinedButton(
                     onClick = onShopClick,
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp)
+                        .height(52.dp)
                         .testTag("shop_button"),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1F2937)),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, Color(0xFFE5E7EB))
                 ) {
-                    Text("CHAMBER SHOP", color = NeonGold, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Default.ShoppingBag,
+                        contentDescription = stringResource(R.string.shop),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.shop),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedButton(
                     onClick = onCollectionClick,
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp)
+                        .height(52.dp)
                         .testTag("collection_button"),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1F2937)),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, Color(0xFFE5E7EB))
                 ) {
-                    Icon(imageVector = Icons.Default.Collections, contentDescription = "Collection", tint = Color.White)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("COREPEDIA", color = Color.White, fontSize = 12.sp)
+                    Icon(
+                        imageVector = Icons.Default.MenuBook,
+                        contentDescription = stringResource(R.string.cd_corepedia),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.corepedia).uppercase(),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
                 OutlinedButton(
                     onClick = onSettingsClick,
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp)
+                        .height(52.dp)
                         .testTag("settings_button"),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1F2937)),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, Color(0xFFE5E7EB))
                 ) {
-                    Text("SETTINGS", color = Color.White, fontSize = 12.sp)
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.cd_settings),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.settings).uppercase(),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             TextButton(
                 onClick = onReplayTutorialClick,
                 modifier = Modifier.testTag("replay_tutorial_button")
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.HelpOutline, contentDescription = "Replay Tutorial", tint = Color.Gray, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("REPLAY FTUE TUTORIAL", color = Color.Gray, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Default.HelpOutline,
+                        contentDescription = stringResource(R.string.replay_tutorial),
+                        tint = Color(0xFF6B7280),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.replay_tutorial),
+                        color = Color(0xFF6B7280),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
