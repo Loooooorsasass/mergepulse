@@ -155,7 +155,16 @@ class GameRenderer {
             canvas.drawRect(world.chamberLeft, world.spawnLineY, world.chamberRight, world.dangerLineY, dangerZonePaint)
         }
 
-        // Danger Line
+        // Danger line: calm by default, gently pulses only when the chamber is actually unsafe.
+        val dangerTime = System.nanoTime() / 1_000_000_000f
+        if (world.isDangerActive) {
+            val pulse = (0.72f + 0.28f * ((sin(dangerTime * 5.0f) + 1f) * 0.5f))
+            dangerLinePaint.alpha = (255f * pulse).toInt()
+            dangerLinePaint.pathEffect = DashPathEffect(floatArrayOf(16f, 12f), -dangerTime * 28f)
+        } else {
+            dangerLinePaint.alpha = 185
+            dangerLinePaint.pathEffect = DashPathEffect(floatArrayOf(16f, 12f), 0f)
+        }
         canvas.drawLine(world.chamberLeft, world.dangerLineY, world.chamberRight, world.dangerLineY, dangerLinePaint)
 
         // 4. Draw Aim Trajectory & Aiming Core Preview
@@ -216,12 +225,34 @@ class GameRenderer {
         val cx = core.position.x
         val cy = core.position.y
 
-        val scale = if (core.mergeAnimTime > 0f) {
-            1f + 0.35f * (core.mergeAnimTime / 0.3f)
+        /*
+         * Visual-only motion. Physics never uses these values.
+         * The aim is "alive, but calm": tiny idle breathing, soft preview float,
+         * a quick merge pop, and a small squash/stretch while a core is moving.
+         */
+        val now = System.nanoTime() / 1_000_000_000f
+        val phase = (core.id % 31L).toFloat() * 0.37f
+
+        val idleAmount = if (!core.isSpawned) 0.025f else 0.012f
+        val idleScale = 1f + sin(now * 2.2f + phase) * idleAmount
+
+        val mergeProgress = (1f - core.mergeAnimTime / 0.3f).coerceIn(0f, 1f)
+        val mergeEase = if (core.mergeAnimTime > 0f) {
+            1f + 0.28f * sin(mergeProgress * Math.PI).toFloat()
         } else {
             1f
         }
-        val r = core.radius * scale
+
+        val speed = kotlin.math.abs(core.velocity.y)
+        val stretch = if (core.isSpawned) (speed / 1800f).coerceIn(0f, 0.055f) else 0f
+
+        val scaleX = idleScale * mergeEase * (1f - stretch * 0.35f)
+        val scaleY = idleScale * mergeEase * (1f + stretch)
+
+        val r = core.radius
+
+        canvas.save()
+        canvas.scale(scaleX, scaleY, cx, cy)
 
         // 1. Outer Glow Pulse Aura
         coreGlowPaint.style = Paint.Style.FILL
@@ -303,6 +334,8 @@ class GameRenderer {
         val lvlText = "L${core.level}"
         levelBadgeTextPaint.getTextBounds(lvlText, 0, lvlText.length, textBounds)
         canvas.drawText(lvlText, cx, badgeY + textBounds.height() / 2f - 1.5f, levelBadgeTextPaint)
+
+        canvas.restore()
     }
 
     private fun darkShade(colorInt: Int): Int {
