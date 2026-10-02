@@ -49,261 +49,59 @@ import com.example.ui.theme.NeonPink
 @Composable
 fun HudHeader(
     world: GameWorld,
-    onPauseClick: () -> Unit,
-    onOverchargeShockwave: () -> Unit,
-    onOverchargeOverdrive: () -> Unit,
+    onMenuClick: () -> Unit,
+    onOverchargeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val overchargeProgress by animateFloatAsState(
+    val progress by animateFloatAsState(
         targetValue = (world.overchargePercent / 100f).coerceIn(0f, 1f),
-        animationSpec = tween(300),
-        label = "overcharge"
+        animationSpec = tween(180),
+        label = "overcharge_meter"
     )
+    val ready = world.overchargePercent >= 100f
 
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(DarkSurface.copy(alpha = 0.92f))
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(DarkSurface)
+            .padding(horizontal = 16.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Top Row: Score, Combo Badge, Best Score, Pause
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(modifier = Modifier.width(88.dp)) {
+            Text("SCORE", color = Color.White.copy(alpha = .55f), fontSize = 10.sp,
+                fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
+            Text("%,d".format(world.score), color = Color.White, fontSize = 22.sp,
+                fontWeight = FontWeight.Black)
+        }
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(enabled = ready, onClick = onOverchargeClick)
         ) {
-            Column {
-                Text(
-                    text = "SCORE",
-                    color = Color.Gray,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
-                Text(
-                    text = String.format("%,d", world.score),
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Black
-                )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("OVERCHARGE", color = if (ready) NeonCyan else Color.White.copy(alpha = .55f),
+                    fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp)
+                Text(if (ready) "READY" else "${world.overchargePercent.toInt()}%",
+                    color = if (ready) NeonCyan else Color.White.copy(alpha = .55f),
+                    fontSize = 10.sp, fontWeight = FontWeight.Bold)
             }
-
-            // Combo Badge
-            if (world.comboCount > 1) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(NeonPink)
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                        .testTag("combo_badge")
-                ) {
-                    Text(
-                        text = "COMBO x${world.comboCount}",
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "BEST",
-                        color = Color.Gray,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
-                    )
-                    Text(
-                        text = String.format("%,d", world.bestScore),
-                        color = NeonGold,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                IconButton(
-                    onClick = onPauseClick,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.1f))
-                        .testTag("pause_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Pause,
-                        contentDescription = "Pause Game",
-                        tint = Color.White
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // 2X Score Overdrive Banner
-        if (world.scoreOverdriveTimer > 0f) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(NeonGold)
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "2X Overdrive",
-                        tint = DarkSurface
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "2X OVERDRIVE ACTIVE! (${String.format("%.1fs", world.scoreOverdriveTimer)})",
-                        color = DarkSurface,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-
-        // Mission Goal Tracker or Danger Alert
-        if (world.mode == GameMode.MISSION && world.activeMission != null) {
-            val mission = world.activeMission!!
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White.copy(alpha = 0.05f))
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = "GOAL: ${mission.description}",
-                    color = NeonCyan,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-
-        // Danger Alert Banner
-        AnimatedVisibility(
-            visible = world.isDangerActive,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(DangerRed.copy(alpha = 0.88f))
-                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Danger Warning",
-                    tint = Color.White,
-                    modifier = Modifier.scale(0.8f)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "CRITICAL CHAMBER OVERFLOW DANGER!",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Black
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Overcharge Meter Bar & Action Choices
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "OVERCHARGE",
-                color = if (world.overchargePercent >= 100f) NeonCyan else Color.Gray,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp,
-                modifier = Modifier.width(80.dp)
+            Spacer(Modifier.height(5.dp))
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(4.dp))
+                    .testTag("overcharge_meter"),
+                color = if (ready) NeonCyan else NeonGold,
+                trackColor = Color.White.copy(alpha = .09f)
             )
+        }
 
-            if (world.overchargePercent >= 100f) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(NeonCyan)
-                            .clickable { onOverchargeShockwave() }
-                            .padding(vertical = 4.dp)
-                            .testTag("shockwave_button"),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.ElectricBolt,
-                                contentDescription = "Shockwave",
-                                tint = DarkSurface
-                            )
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text(
-                                text = "SHOCKWAVE",
-                                color = DarkSurface,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(NeonGold)
-                            .clickable { onOverchargeOverdrive() }
-                            .padding(vertical = 4.dp)
-                            .testTag("overdrive_button"),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "2x Overdrive",
-                                tint = DarkSurface
-                            )
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text(
-                                text = "2X OVERDRIVE",
-                                color = DarkSurface,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
-                    }
-                }
-            } else {
-                LinearProgressIndicator(
-                    progress = { overchargeProgress },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp)),
-                    color = NeonCyan,
-                    trackColor = Color.White.copy(alpha = 0.1f)
-                )
-            }
+        Spacer(Modifier.width(12.dp))
+        IconButton(onClick = onMenuClick, modifier = Modifier.size(42.dp).testTag("menu_button")) {
+            Icon(Icons.Default.MoreVert, "Game menu", tint = Color.White)
         }
     }
 }
