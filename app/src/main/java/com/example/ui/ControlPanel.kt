@@ -48,120 +48,57 @@ fun ControlPanel(
     onDropClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val current = world.currentCore
+    val canFlip = current != null && world.flipEnergy >= 1f
+
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(DarkSurface)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.fillMaxWidth().background(DarkSurface)
+            .padding(horizontal = 14.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // NEXT Preview Card
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "NEXT",
-                color = Color.Gray,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+        Column(Modifier.width(82.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("READY", color = Color.White.copy(alpha = .5f), fontSize = 10.sp,
+                fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
+            Spacer(Modifier.height(4.dp))
             Box(
-                modifier = Modifier
-                    .size(54.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                Modifier.size(58.dp).clip(RoundedCornerShape(14.dp))
                     .background(DarkSurfaceVariant)
-                    .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(12.dp)),
+                    .border(1.dp, Color.White.copy(alpha = .12f), RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                world.nextCore?.let { core ->
-                    PreviewCoreCanvas(core = core, sizeDp = 44)
-                }
+                current?.let { PreviewCoreCanvas(it, 48) }
             }
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // FLIP ± Button with Flip Energy Gauge
-        val currentCharge = world.currentCore?.charge ?: Charge.POSITIVE
-        val chargeColor = if (currentCharge == Charge.POSITIVE) NeonPink else NeonCyan
-        val isFlipReady = world.flipEnergy >= 1.0f
-
-        Button(
+        TextButton(
             onClick = onFlipClick,
-            enabled = isFlipReady,
-            modifier = Modifier
-                .height(54.dp)
-                .weight(1f)
-                .testTag("flip_button"),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = DarkSurfaceVariant,
-                disabledContainerColor = DarkSurfaceVariant.copy(alpha = 0.5f),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp),
-            border = androidx.compose.foundation.BorderStroke(1.5.dp, if (isFlipReady) chargeColor else Color.Gray)
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Sync,
-                        contentDescription = "Flip Charge",
-                        tint = if (isFlipReady) chargeColor else Color.Gray
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "FLIP ${currentCharge.symbol}",
-                        color = if (isFlipReady) Color.White else Color.Gray,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                // Energy gauge indicator (3 segments)
-                LinearProgressIndicator(
-                    progress = { (world.flipEnergy / world.MAX_FLIP_ENERGY).coerceIn(0f, 1f) },
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(2.dp)),
-                    color = chargeColor,
-                    trackColor = Color.White.copy(alpha = 0.1f)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // DROP Button
-        Button(
-            onClick = onDropClick,
-            modifier = Modifier
-                .height(54.dp)
-                .weight(1.2f)
-                .testTag("drop_button"),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = NeonCyan,
-                contentColor = DarkSurface
-            ),
-            shape = RoundedCornerShape(16.dp)
+            enabled = canFlip,
+            modifier = Modifier.height(58.dp).weight(.9f).clip(RoundedCornerShape(14.dp))
+                .border(1.dp, if (canFlip) Color.White.copy(alpha = .35f)
+                    else Color.White.copy(alpha = .12f), RoundedCornerShape(14.dp))
+                .testTag("flip_button")
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.ArrowDownward,
-                    contentDescription = "Drop Core",
-                    tint = DarkSurface
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "DROP",
-                    color = DarkSurface,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp
-                )
+                Icon(Icons.Default.Sync, "Flip charge",
+                    tint = if (canFlip) Color.White else Color.White.copy(alpha = .35f))
+                Spacer(Modifier.width(6.dp))
+                Text("FLIP ±", color = if (canFlip) Color.White else Color.White.copy(alpha = .35f),
+                    fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        TextButton(
+            onClick = onDropClick,
+            enabled = current != null,
+            modifier = Modifier.height(58.dp).weight(1.2f).clip(RoundedCornerShape(14.dp))
+                .background(NeonCyan).testTag("drop_button")
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.ArrowDownward, "Drop core", tint = DarkSurface)
+                Spacer(Modifier.width(6.dp))
+                Text("DROP", color = DarkSurface, fontSize = 16.sp,
+                    fontWeight = FontWeight.Black, letterSpacing = 1.1.sp)
             }
         }
     }
@@ -169,31 +106,36 @@ fun ControlPanel(
 
 @Composable
 fun PreviewCoreCanvas(core: Core, sizeDp: Int) {
-    val levelInfo = CoreLevelRegistry.getInfo(core.level)
-    val color = if (core.charge == Charge.POSITIVE) levelInfo.positiveColor else levelInfo.negativeColor
+    val info = CoreLevelRegistry.getInfo(core.level)
+    val color = if (core.charge == Charge.POSITIVE) info.positiveColor else info.negativeColor
 
-    Canvas(modifier = Modifier.size(sizeDp.dp)) {
+    Canvas(Modifier.size(sizeDp.dp)) {
         val cx = size.width / 2f
         val cy = size.height / 2f
-        val radius = size.width * 0.4f
+        val radius = size.width * .36f
 
-        drawCircle(
-            color = color.copy(alpha = 0.3f),
-            radius = radius * 1.2f,
-            center = androidx.compose.ui.geometry.Offset(cx, cy)
-        )
+        drawCircle(color.copy(alpha = .18f), radius * 1.45f,
+            androidx.compose.ui.geometry.Offset(cx, cy))
+        drawCircle(color, radius, androidx.compose.ui.geometry.Offset(cx, cy))
+        drawCircle(Color.White.copy(alpha = .65f), radius, androidx.compose.ui.geometry.Offset(cx, cy),
+            style = androidx.compose.ui.graphics.drawscope.Stroke(1.5f))
 
-        drawCircle(
-            color = color,
-            radius = radius,
-            center = androidx.compose.ui.geometry.Offset(cx, cy)
-        )
-
-        drawCircle(
-            color = Color.White.copy(alpha = 0.8f),
-            radius = radius * 0.8f,
-            center = androidx.compose.ui.geometry.Offset(cx, cy),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-        )
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            textAlign = android.graphics.Paint.Align.CENTER
+            textSize = radius * 1.15f
+            isFakeBoldText = true
+            color = android.graphics.Color.WHITE
+        }
+        val stroke = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            textAlign = android.graphics.Paint.Align.CENTER
+            textSize = radius * 1.15f
+            isFakeBoldText = true
+            color = android.graphics.Color.rgb(10, 13, 20)
+            style = android.graphics.Paint.Style.STROKE
+            strokeWidth = 3f
+        }
+        val baseline = cy - (paint.ascent() + paint.descent()) / 2f
+        drawContext.canvas.nativeCanvas.drawText(core.charge.symbol, cx, baseline, stroke)
+        drawContext.canvas.nativeCanvas.drawText(core.charge.symbol, cx, baseline, paint)
     }
 }
