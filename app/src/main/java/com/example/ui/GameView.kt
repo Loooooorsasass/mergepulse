@@ -54,6 +54,9 @@ fun GameScreen(
     onMarkFtueCompleted: () -> Unit,
     onMarkNotificationPrompted: () -> Unit,
     onReturnHome: () -> Unit,
+    onOpenCorepedia: () -> Unit,
+    onOpenMissions: () -> Unit,
+    onOpenSettings: () -> Unit,
     initialMode: GameMode = GameMode.ENDLESS,
     initialMission: MissionDefinition? = null
 ) {
@@ -62,6 +65,8 @@ fun GameScreen(
     val renderer = remember { GameRenderer() }
 
     var isPaused by remember { mutableStateOf(false) }
+    var uiTick by remember { mutableStateOf(0L) }
+    var resultSaved by remember { mutableStateOf(false) }
 
     gameWorld.currentThemeId = selectedThemeId
     gameWorld.gameOverFsm.hasPromptedNotificationEver = hasPromptedNotification
@@ -78,6 +83,8 @@ fun GameScreen(
     }
 
     LaunchedEffect(initialMode, initialMission) {
+        resultSaved = false
+        isPaused = false
         gameWorld.startNewGame(initialMode, initialMission)
     }
 
@@ -89,12 +96,14 @@ fun GameScreen(
                 lastTimeNanos = nowNanos
 
                 gameWorld.update(rawDt)
+                uiTick++
 
                 if (initialMode == GameMode.TUTORIAL && gameWorld.tutorialFsm.state == TutorialState.COMPLETE) {
                     onMarkFtueCompleted()
                 }
 
-                if (gameWorld.state == GameState.GAME_OVER || gameWorld.state == GameState.MISSION_COMPLETE) {
+                if (!resultSaved && (gameWorld.state == GameState.GAME_OVER || gameWorld.state == GameState.MISSION_COMPLETE)) {
+                    resultSaved = true;
                     onSaveResult(
                         gameWorld.score,
                         gameWorld.bestCombo,
@@ -113,17 +122,19 @@ fun GameScreen(
         topBar = {
             HudHeader(
                 world = gameWorld,
-                onPauseClick = { isPaused = true },
-                onOverchargeShockwave = { gameWorld.triggerOverchargePulse() },
-                onOverchargeOverdrive = { gameWorld.triggerScoreOverdrive() }
+                onMenuClick = { isPaused = true },
+                onOverchargeClick = { gameWorld.triggerOverchargePulse() }
             )
         },
         bottomBar = {
-            ControlPanel(
-                world = gameWorld,
-                onFlipClick = { gameWorld.flipCurrentCharge() },
-                onDropClick = { gameWorld.dropCurrentCore() }
-            )
+            Column {
+                ControlPanel(world = gameWorld, onFlipClick = { gameWorld.flipCurrentCharge() }, onDropClick = { gameWorld.dropCurrentCore() })
+                NavigationBar(containerColor = DarkSurface, tonalElevation = 0.dp, modifier = Modifier.testTag("game_bottom_nav")) {
+                    NavigationBarItem(false, onOpenCorepedia, icon = { Icon(Icons.Default.AutoAwesome, "Corepedia") }, label = { Text("Corepedia") })
+                    NavigationBarItem(false, onOpenMissions, icon = { Icon(Icons.Default.TaskAlt, "Missions") }, label = { Text("Missions") })
+                    NavigationBarItem(false, onOpenSettings, icon = { Icon(Icons.Default.Settings, "Settings") }, label = { Text("Settings") })
+                }
+            }
         },
         containerColor = DarkBg
     ) { innerPadding ->
@@ -164,7 +175,7 @@ fun GameScreen(
                         }
                     }
             ) {
-                renderer.render(
+                if (uiTick >= 0L) renderer.render(
                     canvas = drawContext.canvas.nativeCanvas,
                     world = gameWorld,
                     screenWidth = size.width,
