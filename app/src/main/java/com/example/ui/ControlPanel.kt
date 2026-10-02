@@ -23,9 +23,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +54,12 @@ fun ControlPanel(
 ) {
     val current = world.currentCore
     val canFlip = current != null && world.flipEnergy >= 1f
+    val flipInteraction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val dropInteraction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val flipPressed by flipInteraction.collectIsPressedAsState()
+    val dropPressed by dropInteraction.collectIsPressedAsState()
+    val flipScale = if (flipPressed) 0.96f else 1f
+    val dropScale = if (dropPressed) 0.96f else 1f
 
     Row(
         modifier = modifier.fillMaxWidth().background(DarkSurface)
@@ -74,7 +84,11 @@ fun ControlPanel(
         TextButton(
             onClick = onFlipClick,
             enabled = canFlip,
-            modifier = Modifier.height(58.dp).weight(.9f).clip(RoundedCornerShape(14.dp))
+            interactionSource = flipInteraction,
+            modifier = Modifier.height(58.dp).graphicsLayer {
+                scaleX = flipScale
+                scaleY = flipScale
+            }.weight(.9f).clip(RoundedCornerShape(14.dp))
                 .border(1.dp, if (canFlip) Color.White.copy(alpha = .35f)
                     else Color.White.copy(alpha = .12f), RoundedCornerShape(14.dp))
                 .testTag("flip_button")
@@ -91,7 +105,11 @@ fun ControlPanel(
         TextButton(
             onClick = onDropClick,
             enabled = current != null,
-            modifier = Modifier.height(58.dp).weight(1.2f).clip(RoundedCornerShape(14.dp))
+            interactionSource = dropInteraction,
+            modifier = Modifier.height(58.dp).graphicsLayer {
+                scaleX = dropScale
+                scaleY = dropScale
+            }.weight(1.2f).clip(RoundedCornerShape(14.dp))
                 .background(NeonCyan).testTag("drop_button")
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
